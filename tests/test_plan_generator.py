@@ -35,6 +35,19 @@ def test_select_handles_no_strong():
     assert weak is not None
 
 
+def test_jd_summary_fallback_uses_responsibilities():
+    from src.generator.interview_plan_generator import InterviewPlanGenerator
+
+    summary = InterviewPlanGenerator._jd_summary_fallback(
+        "Quality Engineer",
+        "Very long job description " * 50,
+        ["Build test automation", "Own CI pipelines"],
+    )
+    assert "Quality Engineer" in summary
+    assert "test automation" in summary
+    assert len(summary) <= 800
+
+
 def test_deterministic_plan_segment_count():
     from src.generator.interview_plan_generator import InterviewPlanGenerator
 

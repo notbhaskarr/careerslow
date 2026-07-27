@@ -140,6 +140,44 @@ class TurnManager:
             return seg.get("question", "Tell me about your background.")
         return "Tell me about your background."
 
+    def question_for_repeat(self) -> str:
+        """Planned question for the current segment — repeat speaks this only."""
+        seg = self.current_segment()
+        if seg:
+            return (seg.get("question") or "").strip()
+        return ""
+
+    _ACK_AFTER_PHASE = {
+        "strong": "That's a solid foundation.",
+        "weak": "Thanks for walking through that.",
+        "gap": "Good context.",
+    }
+
+    def build_first_ask_line(self) -> str:
+        """Short ack + bridge from the prior segment, then the planned question."""
+        seg = self.current_segment()
+        if not seg:
+            return ""
+        question = (seg.get("question") or "").strip()
+        if not question:
+            return question
+
+        parts: list[str] = []
+        prev = self.segments[self.segment_index - 1] if self.segment_index > 0 else None
+        if prev:
+            prev_phase = self._norm_phase(prev.get("phase", ""))
+            ack = self._ACK_AFTER_PHASE.get(prev_phase)
+            if ack:
+                parts.append(ack)
+            bridge = (prev.get("bridge_to_next") or "").strip()
+            if bridge and prev_phase != "close":
+                parts.append(bridge)
+        elif self._norm_phase(seg.get("phase", "")) == "close":
+            parts.append("Great.")
+
+        parts.append(question)
+        return " ".join(parts)
+
     def build_greeting_directive(self) -> str:
         return (
             "[INTERVIEWER DIRECTIVE — GREETING]\n"
@@ -165,11 +203,7 @@ class TurnManager:
             Directive string instructing the interviewer what to say next.
         """
         if repeat_question:
-            seg = self.current_segment()
-            question = seg.get("question", "") if seg else ""
-            last_ai = self._last_interviewer_question()
-            if last_ai:
-                question = last_ai
+            question = self.question_for_repeat()
             return (
                 "[INTERVIEWER DIRECTIVE — REPEAT QUESTION]\n"
                 "The candidate asked you to repeat your question.\n"

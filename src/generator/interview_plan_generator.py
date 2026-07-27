@@ -117,7 +117,9 @@ class InterviewPlanGenerator:
             InterviewPlan with exactly 4 segments when topics exist.
         """
         strong, weak, gap = select_prep_topics(gap_analyses)
-        plan = self._build_deterministic_plan(job_title, raw_jd, strong, weak, gap, candidate_name)
+        plan = self._build_deterministic_plan(
+            job_title, raw_jd, strong, weak, gap, candidate_name, responsibilities or []
+        )
 
         try:
             polished = await self._polish_with_llm(
@@ -130,6 +132,22 @@ class InterviewPlanGenerator:
 
         return plan
 
+    @staticmethod
+    def _jd_summary_fallback(
+        job_title: str,
+        raw_jd: str,
+        responsibilities: Optional[List[str]] = None,
+    ) -> str:
+        """Structured fallback when LLM polish is unavailable."""
+        responsibilities = responsibilities or []
+        parts: List[str] = []
+        if job_title:
+            parts.append(job_title.strip())
+        parts.extend(r.strip() for r in responsibilities[:5] if r and r.strip())
+        if parts:
+            return ". ".join(parts)[:800]
+        return " ".join(raw_jd.split())[:800]
+
     def _build_deterministic_plan(
         self,
         job_title: str,
@@ -138,6 +156,7 @@ class InterviewPlanGenerator:
         weak: Optional[dict],
         gap: Optional[dict],
         candidate_name: str = "",
+        responsibilities: Optional[List[str]] = None,
     ) -> InterviewPlan:
         """Build segment questions and bridges without LLM."""
         s_req = strong["requirement"] if strong else "your most relevant experience"
@@ -208,7 +227,7 @@ class InterviewPlanGenerator:
             opening_line=opening,
             candidate_name=candidate_name,
             job_title=job_title,
-            jd_summary_short=" ".join(raw_jd.split())[:300],
+            jd_summary_short=self._jd_summary_fallback(job_title, raw_jd, responsibilities),
             strong_probed=s_req if strong else "",
             weak_probed=w_req,
             gap_probed=g_req if gap else "",
@@ -238,8 +257,10 @@ class InterviewPlanGenerator:
             "You are designing a 5-minute CANDIDATE PREP mock interview (coaching, not hiring).\n"
             "Do NOT change segment count, order, or phase labels.\n"
             "Only refine opening_line, jd_summary_short, and each segment question (max 20 words).\n"
+            "jd_summary_short MUST be 2-3 sentences (max 120 words) covering the role, key "
+            "requirements, and day-to-day focus — not the first paragraph verbatim.\n"
             "Keep bridges thematic. Use coaching tone on gap/weak segments.\n\n"
-            f"JOB: {job_title}\nJD excerpt:\n{raw_jd[:1500]}\n\n"
+            f"JOB: {job_title}\nJD excerpt:\n{raw_jd[:2500]}\n\n"
             f"RESPONSIBILITIES:\n{resp_text or 'N/A'}\n\n"
             f"RESUME EXCERPT:\n{excerpt}\n\n"
             f"STRONG:\n{_format_topic_block(strong) if strong else 'None'}\n\n"
@@ -263,4 +284,6 @@ class InterviewPlanGenerator:
         result.candidate_name = base.candidate_name
         result.job_title = base.job_title
         result.opening_line = base.opening_line
+        if not (result.jd_summary_short or "").strip():
+            result.jd_summary_short = base.jd_summary_short
         return result

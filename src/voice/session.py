@@ -413,6 +413,13 @@ class InterviewSession:
         if intent in ("repeat", "listening"):
             self.history.append(HumanMessage(content=text))
             self._persist_session_state()
+            question = self.turns.question_for_repeat()
+            if question:
+                await self._deliver_scripted_line(
+                    question,
+                    "[INTERVIEWER DIRECTIVE — REPEAT QUESTION]",
+                )
+                return
             last_ai = self._last_ai_message()
             if last_ai:
                 await self._replay_interviewer(last_ai)
@@ -596,6 +603,13 @@ class InterviewSession:
                 kind, text = item
                 user_message = text
                 if kind == "repeat":
+                    question = self.turns.question_for_repeat()
+                    if question:
+                        await self._deliver_scripted_line(
+                            question,
+                            "[INTERVIEWER DIRECTIVE — REPEAT QUESTION]",
+                        )
+                        continue
                     directive = self.turns.build_directive(repeat_question=True)
                     skip_segment_mark = True
                 elif kind == "skip":
@@ -636,11 +650,10 @@ class InterviewSession:
                 if user_message:
                     self.history.append(HumanMessage(content=user_message))
                     self._persist_session_state()
-                seg = self.turns.current_segment()
-                question = seg.get("question", "").strip() if seg else ""
-                if question:
+                line = self.turns.build_first_ask_line()
+                if line:
                     await self._deliver_scripted_line(
-                        question,
+                        line,
                         directive,
                         mark_segment_asked=True,
                     )
