@@ -2,6 +2,7 @@ import asyncio
 import base64
 import json
 import logging
+import os
 import struct
 from typing import Awaitable, Callable, Optional
 from urllib.parse import urlencode
@@ -100,12 +101,17 @@ class SarvamSTTClient:
         self.language_code = language_code
 
     def _build_uri(self) -> str:
+        high_vad = os.getenv("INTERVIEW_HIGH_VAD_SENSITIVITY", "false").lower() in (
+            "1",
+            "true",
+            "yes",
+        )
         params = urlencode({
             "language-code": self.language_code,
             "model": "saaras:v3",
             "mode": "transcribe",
             "sample_rate": "16000",
-            "high_vad_sensitivity": "true",
+            "high_vad_sensitivity": "true" if high_vad else "false",
             "vad_signals": "true",
             "flush_signal": "true",
             "input_audio_codec": "pcm_s16le",

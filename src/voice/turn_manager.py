@@ -107,7 +107,11 @@ class TurnManager:
             self.phase = TurnPhase.AWAITING_USER
 
     def on_user_started_speaking(self):
-        if self.phase in (TurnPhase.AWAITING_USER, TurnPhase.USER_SPEAKING):
+        if self.phase in (
+            TurnPhase.AWAITING_USER,
+            TurnPhase.USER_SPEAKING,
+            TurnPhase.AI_SPEAKING,
+        ):
             self.phase = TurnPhase.USER_SPEAKING
 
     def on_user_finished_speaking(self):

@@ -39,7 +39,7 @@ END_INTERVIEW_PATTERNS = [
 ]
 
 FILLER_PATTERN = re.compile(
-    r"^(yeah|yes|yep|ok|okay|um+|uh+|hmm+|right|sure|hello|hi)[\s?.!,]*$",
+    r"^(yeah|yes|yep|ok|okay|um+|uh+|hmm+|right|sure)[\s?.!,]*$",
     re.IGNORECASE,
 )
 

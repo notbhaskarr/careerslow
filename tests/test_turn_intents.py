@@ -25,4 +25,10 @@ def test_end_interview():
 
 def test_filler_only():
     assert is_filler_only("Okay") is True
+    assert is_filler_only("Hello") is False
     assert is_filler_only("I built a RAG system") is False
+
+
+def test_hello_is_listening_not_filler():
+    assert detect_meta_intent("Hello") == "listening"
+    assert is_filler_only("Hello") is False

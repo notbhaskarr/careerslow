@@ -12,6 +12,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.voice.llm_utils import astream_with_retry
+from src.voice.protocol import STOP_PLAYBACK
 from src.voice.stt_client import SarvamSTTClient
 from src.voice.tts_client import SarvamTTSClient
 from src.voice.turn_intents import (
@@ -27,7 +28,7 @@ STT_LANGUAGE = os.getenv("INTERVIEW_STT_LANGUAGE", "en-IN")
 TTS_LANGUAGE = os.getenv("INTERVIEW_TTS_LANGUAGE", "en-IN")
 LLM_MODEL = os.getenv("INTERVIEW_LLM_MODEL", "gemini-3.1-flash-lite")
 SILENCE_NUDGE_SECONDS = float(os.getenv("INTERVIEW_SILENCE_SECONDS", "12"))
-UTTERANCE_DEBOUNCE_SECONDS = float(os.getenv("INTERVIEW_UTTERANCE_DEBOUNCE_MS", "2500")) / 1000.0
+UTTERANCE_DEBOUNCE_SECONDS = float(os.getenv("INTERVIEW_UTTERANCE_DEBOUNCE_MS", "3500")) / 1000.0
 MIN_COMMIT_WORDS = int(os.getenv("INTERVIEW_MIN_COMMIT_WORDS", "5"))
 SHORT_ANSWER_FALLBACK_SECONDS = float(os.getenv("INTERVIEW_SHORT_ANSWER_SECONDS", "4"))
 
@@ -136,6 +137,51 @@ class InterviewSession:
                 return msg.content.strip()
         return None
 
+    def _planned_question_label(self, directive: str) -> str:
+        seg = self.turns.current_segment()
+        if "SILENCE NUDGE" in directive:
+            return "(silence nudge)"
+        if "CLOSE" in directive or "CLOSE]" in directive:
+            return "(close interview)"
+        if "REPEAT QUESTION" in directive:
+            return seg.get("question", "") if seg else "(repeat last question)"
+        if seg:
+            return seg.get("question", "")
+        return "(no planned question)"
+
+    async def _interrupt_ai_playback(self):
+        """Stop in-flight TTS/audio and tell the browser to halt playback."""
+        self.interrupted.set()
+        while True:
+            try:
+                self.tts_in_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
+        while True:
+            try:
+                self.out_audio_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
+        self.pending_tts = 0
+        try:
+            await self.websocket.send_json(STOP_PLAYBACK)
+        except Exception as exc:
+            logger.debug(f"stop_playback send failed: {exc}")
+
+    async def _begin_barge_in(self):
+        """User started speaking over the interviewer — cut AI audio and listen."""
+        await self._interrupt_ai_playback()
+        if not self._answer_in_progress:
+            self._answer_in_progress = True
+            self._drain_pending_answers()
+        if self._during_ai_buffer.has_content():
+            held = self._during_ai_buffer.joined().strip()
+            self._during_ai_buffer.clear()
+            if held:
+                self._utterance.append(held)
+        self.turns.on_user_started_speaking()
+        logger.info("Barge-in: user speaking over AI")
+
     async def _browser_listener(self):
         try:
             while True:
@@ -186,11 +232,13 @@ class InterviewSession:
 
     async def _on_vad_start(self):
         self._utterance.user_speaking = True
+        self.last_activity = time.monotonic()
+        self.nudge_sent = False
         self._cancel_pending_commit()
         if self.turns.phase in (TurnPhase.AWAITING_USER, TurnPhase.USER_SPEAKING):
             self.turns.on_user_started_speaking()
-        elif self.turns.phase == TurnPhase.AI_SPEAKING and self._answer_in_progress:
-            self.turns.on_user_started_speaking()
+        elif self.turns.phase == TurnPhase.AI_SPEAKING:
+            await self._begin_barge_in()
 
     async def _on_vad_end(self):
         self._utterance.user_speaking = False
@@ -215,13 +263,20 @@ class InterviewSession:
         self.nudge_sent = False
 
         if self.turns.phase == TurnPhase.AI_SPEAKING:
-            if self._answer_in_progress:
-                self._utterance.append(text)
-                self.turns.on_user_started_speaking()
-                logger.debug(f"User (continue): {text}")
+            intent = detect_meta_intent(text)
+            if intent:
+                await self._interrupt_ai_playback()
+                await self._handle_meta_intent(intent, text)
                 return
-            self._during_ai_buffer.append(text)
-            logger.debug(f"User (held during AI): {text}")
+            if not self._answer_in_progress:
+                if is_filler_only(text):
+                    self._during_ai_buffer.append(text)
+                    logger.debug(f"User (held during AI): {text}")
+                    return
+                await self._begin_barge_in()
+            self._utterance.append(text)
+            self.turns.on_user_started_speaking()
+            logger.debug(f"User (continue): {text}")
             return
 
         if self.turns.phase not in (TurnPhase.AWAITING_USER, TurnPhase.USER_SPEAKING):
@@ -244,19 +299,17 @@ class InterviewSession:
         if not text:
             return
 
-        if is_filler_only(text):
-            logger.debug(f"Ignoring filler during AI: {text!r}")
-            return
-
         intent = detect_meta_intent(text)
         if intent:
             await self._handle_meta_intent(intent, text)
             return
 
-        self._utterance.clear()
+        if is_filler_only(text):
+            logger.debug(f"Ignoring filler during AI: {text!r}")
+            return
+
+        await self._begin_barge_in()
         self._utterance.append(text)
-        self._answer_in_progress = True
-        self.turns.on_user_started_speaking()
         logger.info(f"User (answer started during AI): {text}")
 
     async def _handle_meta_intent(self, intent: str, text: str):
@@ -405,6 +458,7 @@ class InterviewSession:
         self.interrupted.clear()
         self.turns.on_ai_started()
         logger.info(f"Replaying last interviewer line ({len(text)} chars)")
+        logger.info("AI said (replay): %s", text)
         await self._enqueue_tts(text)
 
     async def _llm_worker(self):
@@ -438,6 +492,13 @@ class InterviewSession:
                 await self.llm_in_queue.put(item)
                 await asyncio.sleep(0.3)
                 continue
+
+            planned = self._planned_question_label(directive)
+            logger.info(
+                "AI turn [segment=%s]: planned=%r",
+                self.turns.segment_index,
+                planned,
+            )
 
             if user_message:
                 self.history.append(HumanMessage(content=user_message))
@@ -484,6 +545,7 @@ class InterviewSession:
 
                 if full_response and not self.interrupted.is_set() and not self._answer_in_progress:
                     self.history.append(AIMessage(content=full_response))
+                    logger.info("AI said: %s", full_response)
                     self._persist_session_state()
                     if self.pending_tts == 0:
                         self._maybe_finish_ai_playback()
@@ -551,6 +613,7 @@ class InterviewSession:
                     self._answer_in_progress
                     or self._utterance.user_speaking
                     or self._utterance.has_content()
+                    or self._during_ai_buffer.has_content()
                 ):
                     continue
                 if self.pending_tts > 0 or not self.out_audio_queue.empty():
