@@ -1,5 +1,6 @@
 """Voice WebSocket routes and post-interview candidate debrief extraction."""
 
+import asyncio
 import logging
 import os
 from typing import List
@@ -187,11 +188,18 @@ async def debrief_interview(session_id: str):
     if cached:
         return DebriefResult.model_validate(cached)
 
-    transcript = cache.get_transcript(session_id)
+    transcript = ""
+    pair_id = None
+    for _ in range(6):
+        transcript = cache.get_transcript(session_id)
+        pair_id = cache.get_session_pair(session_id)
+        if transcript and pair_id:
+            break
+        await asyncio.sleep(0.5)
+
     if not transcript:
         raise HTTPException(status_code=404, detail="No transcript found for this session")
 
-    pair_id = cache.get_session_pair(session_id)
     if not pair_id:
         raise HTTPException(status_code=404, detail="Session not linked to an analysis pair")
 

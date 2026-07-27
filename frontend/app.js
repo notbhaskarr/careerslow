@@ -519,12 +519,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 extractState.classList.remove('hidden');
                 extractContent.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating your debrief...';
 
-                const res = await fetch(apiUrl(`/api/interview/debrief/${sessionId}`), { method: 'POST' });
-                if (res.ok) {
-                    const data = await res.json();
-                    extractContent.innerHTML = renderDebrief(data);
-                } else {
-                    extractContent.innerHTML = '<span style="color: var(--danger);">Failed to generate debrief.</span>';
+                let debrief = null;
+                for (let attempt = 0; attempt < 4; attempt++) {
+                    const res = await fetch(apiUrl(`/api/interview/debrief/${sessionId}`), { method: 'POST' });
+                    if (res.ok) {
+                        debrief = await res.json();
+                        break;
+                    }
+                    if (res.status !== 404 || attempt === 3) {
+                        extractContent.innerHTML = '<span style="color: var(--danger);">Failed to generate debrief.</span>';
+                        return;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                if (debrief) {
+                    extractContent.innerHTML = renderDebrief(debrief);
                 }
             } else if (extractState && extractContent && shouldExtract) {
                 extractState.classList.remove('hidden');

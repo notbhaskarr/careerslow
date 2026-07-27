@@ -102,25 +102,33 @@ class InterviewSession:
         finally:
             self._cleanup()
 
-    def _cleanup(self):
-        self.stt_stop.set()
-        self._cancel_pending_commit()
-        for task in self.tasks:
-            if not task.done():
-                task.cancel()
+    def _format_transcript(self) -> str:
         lines = []
         for msg in self.history:
             if isinstance(msg, HumanMessage):
                 lines.append(f"Candidate: {msg.content}")
             elif isinstance(msg, AIMessage) and msg.content:
                 lines.append(f"Interviewer: {msg.content}")
-        if self.cache:
-            meta = self.turns.get_session_meta()
-            meta["session_id"] = self.session_id
-            meta["pair_id"] = self.pair_id
-            self.cache.set_transcript(self.session_id, "\n".join(lines))
-            self.cache.set_session_meta(self.session_id, meta)
-            self.cache.link_session_pair(self.session_id, self.pair_id)
+        return "\n".join(lines)
+
+    def _persist_session_state(self):
+        """Write transcript + meta to Redis so debrief can run before WS cleanup finishes."""
+        if not self.cache:
+            return
+        meta = self.turns.get_session_meta()
+        meta["session_id"] = self.session_id
+        meta["pair_id"] = self.pair_id
+        self.cache.set_transcript(self.session_id, self._format_transcript())
+        self.cache.set_session_meta(self.session_id, meta)
+        self.cache.link_session_pair(self.session_id, self.pair_id)
+
+    def _cleanup(self):
+        self.stt_stop.set()
+        self._cancel_pending_commit()
+        for task in self.tasks:
+            if not task.done():
+                task.cancel()
+        self._persist_session_state()
 
     def _last_ai_message(self) -> Optional[str]:
         for msg in reversed(self.history):
@@ -262,6 +270,7 @@ class InterviewSession:
 
         if intent == "end":
             self.history.append(HumanMessage(content=text))
+            self._persist_session_state()
             await self.llm_in_queue.put(
                 "[INTERVIEWER DIRECTIVE — CLOSE]\n"
                 "The candidate wants to end early. Thank them warmly and close in under 25 words."
@@ -270,6 +279,7 @@ class InterviewSession:
 
         if intent in ("repeat", "listening"):
             self.history.append(HumanMessage(content=text))
+            self._persist_session_state()
             last_ai = self._last_ai_message()
             if last_ai:
                 await self._replay_interviewer(last_ai)
@@ -279,6 +289,7 @@ class InterviewSession:
 
         if intent == "skip":
             self.history.append(HumanMessage(content=text))
+            self._persist_session_state()
             self.turns.advance_segment()
             await self.llm_in_queue.put(("skip", text))
             return
@@ -363,6 +374,7 @@ class InterviewSession:
                 self.history[-1] = HumanMessage(content=merged)
             else:
                 self.history.append(HumanMessage(content=text))
+            self._persist_session_state()
             self._utterance.clear()
             self._answer_in_progress = False
             return
@@ -429,6 +441,7 @@ class InterviewSession:
 
             if user_message:
                 self.history.append(HumanMessage(content=user_message))
+                self._persist_session_state()
 
             self.interrupted.clear()
             self.turns.on_ai_started()
@@ -471,6 +484,7 @@ class InterviewSession:
 
                 if full_response and not self.interrupted.is_set() and not self._answer_in_progress:
                     self.history.append(AIMessage(content=full_response))
+                    self._persist_session_state()
                     if self.pending_tts == 0:
                         self._maybe_finish_ai_playback()
 
@@ -552,6 +566,7 @@ class InterviewSession:
             pass
 
     async def start(self):
+        self._persist_session_state()
         await self.websocket.send_json(
             {"type": "session_started", "session_id": self.session_id, "pair_id": self.pair_id}
         )
