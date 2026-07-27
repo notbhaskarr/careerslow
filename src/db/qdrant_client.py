@@ -46,6 +46,7 @@ class VectorDatabase:
         self.sparse_embeddings = SparseTextEmbedding(model_name="Qdrant/bm25")
         
         self._ensure_collection()
+        self._ensure_payload_indexes()
 
     def _ensure_collection(self):
         """
@@ -68,6 +69,20 @@ class VectorDatabase:
                     "sparse": models.SparseVectorParams()
                 }
             )
+
+    def _ensure_payload_indexes(self):
+        """Create keyword indexes on filter fields (required by Qdrant Cloud)."""
+        for field_name in ("resume_id", "section_type", "candidate_id"):
+            try:
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name=field_name,
+                    field_schema=models.PayloadSchemaType.KEYWORD,
+                )
+            except Exception as exc:
+                # Index already exists on redeploy / warm start.
+                if "already exists" not in str(exc).lower():
+                    print(f"Warning: payload index for {field_name}: {exc}")
 
     def index_resume(self, parsed_resume: ParsedResume, resume_id: str, candidate_id: str = "unknown"):
         """
