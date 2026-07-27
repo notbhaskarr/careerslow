@@ -1,28 +1,27 @@
+# Production dependencies (pinned for reproducible Render/Docker builds)
+
 # Core orchestration
-langgraph
-langchain
-langchain-google-genai
+langgraph==0.6.11
+langchain==0.3.30
+langchain-google-genai==2.1.12
 
 # Vector Database
-qdrant-client
-fastembed
+qdrant-client==1.16.1
+fastembed==0.7.4
 
-# Structured Output & Validation
-pydantic
-
-# NLP & Parsing
+# Structured Output
+pydantic==2.13.4
 
 # API / WebSocket Server
-fastapi
-uvicorn[standard]
-websockets==12.0
+fastapi==0.128.8
+uvicorn[standard]==0.39.0
+websockets>=12.0,<16.0
 redis==5.0.3
 
-# Tracing & Eval
+# Tracing (optional at runtime)
 langsmith
-pytest
 
 # Utils
 python-dotenv
 python-multipart
-pymupdf
+pymupdf==1.26.5
