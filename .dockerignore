@@ -1,0 +1,11 @@
+venv
+.env
+.git
+__pycache__
+*.pyc
+.pytest_cache
+qdrant_storage
+eval/reports
+docs
+scripts/fonts
+*.pdf

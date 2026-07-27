@@ -1,0 +1,616 @@
+{
+  "version": 1,
+  "description": "Curated golden set for gap scoring and retrieval eval. Not random — each case has intentional strong/weak/gap requirements.",
+  "cases": [
+    {
+      "id": "backend_python",
+      "job_title": "Senior Backend Engineer",
+      "raw_resume": "Alex Chen — Backend Engineer\nSkills: Python, FastAPI, PostgreSQL, Redis, Docker, REST APIs, pytest\nExperience:\n- Built FastAPI microservices handling 50k req/min with Redis caching and PostgreSQL.\n- Designed REST APIs for a fintech payments platform; wrote integration tests with pytest.\n- Deployed services with Docker Compose on AWS EC2; basic CI with GitHub Actions.\nProjects: LangGraph prototype for internal document Q&A (Python, OpenAI API).",
+      "raw_jd": "Senior Backend Engineer\nRequired: Python 3+, FastAPI or Django, PostgreSQL, Redis, production API design, Docker, unit testing.\nRequired: Kubernetes orchestration and LangSmith evaluation pipelines.\nNice-to-have: GraphQL, Terraform.",
+      "requirements": [
+        {
+          "requirement": "Python 3+ and FastAPI or Django",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Python", "FastAPI", "microservices"],
+          "label_notes": "Resume explicitly lists Python and FastAPI production use."
+        },
+        {
+          "requirement": "PostgreSQL and Redis",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["PostgreSQL", "Redis caching"],
+          "label_notes": "Both named with production context."
+        },
+        {
+          "requirement": "Docker and unit testing",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Docker", "pytest"],
+          "label_notes": "Docker + pytest clearly stated."
+        },
+        {
+          "requirement": "Kubernetes orchestration",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No Kubernetes on resume; only Docker Compose."
+        },
+        {
+          "requirement": "LangSmith evaluation pipelines",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["LangGraph", "OpenAI API"],
+          "label_notes": "Adjacent LLM work but no LangSmith eval tooling."
+        }
+      ],
+      "duty_requirements": [
+        {
+          "requirement": "Design and operate production REST APIs",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["REST APIs", "fintech payments", "integration tests"],
+          "label_notes": "Experience bullet describes API design and testing."
+        },
+        {
+          "requirement": "Build scalable backend microservices",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["microservices", "50k req/min", "FastAPI"],
+          "label_notes": "Production microservices with throughput context."
+        },
+        {
+          "requirement": "Deploy services with CI/CD pipelines",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["Docker Compose", "GitHub Actions", "Deployed"],
+          "label_notes": "Basic CI/deploy; not full platform ownership."
+        }
+      ]
+    },
+    {
+      "id": "frontend_react",
+      "job_title": "Frontend Engineer",
+      "raw_resume": "Jordan Lee — Frontend Developer\nSkills: JavaScript, React, HTML/CSS, Webpack, Jest\nExperience:\n- Built customer dashboard in React 18 with hooks and context API.\n- Improved LCP by 30% via code splitting and lazy loading.\n- Wrote Jest unit tests for shared component library.\nEducation: BS Computer Science.",
+      "raw_jd": "Frontend Engineer\nRequired: React, TypeScript, modern CSS, web performance, unit testing.\nRequired: WCAG accessibility compliance and GraphQL client experience.\nNice-to-have: Next.js, design systems.",
+      "requirements": [
+        {
+          "requirement": "React and modern JavaScript",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["React 18", "JavaScript"],
+          "label_notes": "Strong React production experience."
+        },
+        {
+          "requirement": "Web performance optimization",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["LCP", "code splitting"],
+          "label_notes": "Concrete performance metric cited."
+        },
+        {
+          "requirement": "TypeScript",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["JavaScript"],
+          "label_notes": "JS strong but TypeScript not mentioned."
+        },
+        {
+          "requirement": "WCAG accessibility compliance",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No accessibility work mentioned."
+        },
+        {
+          "requirement": "GraphQL client experience",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "REST-only background implied."
+        }
+      ],
+      "duty_requirements": [
+        {
+          "requirement": "Build production React customer dashboards",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["customer dashboard", "React 18", "hooks"],
+          "label_notes": "Core frontend delivery experience."
+        },
+        {
+          "requirement": "Optimize web performance and Core Web Vitals",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["LCP", "code splitting", "lazy loading"],
+          "label_notes": "Concrete performance work with metric."
+        },
+        {
+          "requirement": "Maintain shared component library quality",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Jest unit tests", "component library"],
+          "label_notes": "Testing ownership for shared UI."
+        }
+      ]
+    },
+    {
+      "id": "ml_engineer",
+      "job_title": "ML Engineer",
+      "raw_resume": "Samira Patel — ML Engineer\nSkills: Python, PyTorch, scikit-learn, pandas, NumPy, Jupyter\nExperience:\n- Trained image classification models with PyTorch on AWS GPU instances.\n- Built batch inference pipeline with 92% accuracy on internal dataset.\n- Published internal notebook templates for feature engineering.\nProjects: RAG chatbot POC using OpenAI embeddings (no production deploy).",
+      "raw_jd": "ML Engineer\nRequired: Python, PyTorch or TensorFlow, model training and evaluation, cloud GPU.\nRequired: MLOps (MLflow, model monitoring) and LLM evaluation frameworks (LangSmith).\nNice-to-have: Spark, Kubernetes.",
+      "requirements": [
+        {
+          "requirement": "PyTorch model training",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["PyTorch", "trained"],
+          "label_notes": "Direct PyTorch training experience."
+        },
+        {
+          "requirement": "Python and data science stack",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Python", "pandas", "scikit-learn"],
+          "label_notes": "Core stack well covered."
+        },
+        {
+          "requirement": "Cloud GPU training",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["AWS GPU"],
+          "label_notes": "AWS GPU mentioned."
+        },
+        {
+          "requirement": "MLOps and model monitoring",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No MLflow or monitoring tooling."
+        },
+        {
+          "requirement": "LangSmith LLM evaluation",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["RAG", "OpenAI embeddings"],
+          "label_notes": "LLM POC only; no formal eval pipeline."
+        }
+      ]
+    },
+    {
+      "id": "devops_sre",
+      "job_title": "DevOps Engineer",
+      "raw_resume": "Mike Torres — DevOps\nSkills: Linux, Docker, Jenkins, Ansible, Bash, Prometheus, Grafana\nExperience:\n- Maintained CI/CD with Jenkins and Docker for 20+ Java services.\n- Set up Prometheus/Grafana alerting for production SLOs.\n- Wrote Ansible playbooks for server provisioning.\nCertifications: AWS Solutions Architect Associate.",
+      "raw_jd": "DevOps Engineer\nRequired: Docker, CI/CD, Linux, monitoring (Prometheus/Grafana), scripting.\nRequired: Terraform IaC and multi-cloud (GCP/Azure).\nNice-to-have: Kubernetes, Helm.",
+      "requirements": [
+        {
+          "requirement": "Docker and CI/CD",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Docker", "Jenkins", "CI/CD"],
+          "label_notes": "Core DevOps stack present."
+        },
+        {
+          "requirement": "Prometheus and Grafana monitoring",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Prometheus", "Grafana"],
+          "label_notes": "Explicit monitoring setup."
+        },
+        {
+          "requirement": "AWS cloud experience",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["AWS Solutions Architect"],
+          "label_notes": "Certification but limited project detail."
+        },
+        {
+          "requirement": "Terraform infrastructure as code",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Ansible only; no Terraform."
+        },
+        {
+          "requirement": "Kubernetes and Helm",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Not mentioned."
+        }
+      ],
+      "duty_requirements": [
+        {
+          "requirement": "Maintain CI/CD pipelines for production services",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["CI/CD", "Jenkins", "20+ Java services"],
+          "label_notes": "Primary DevOps accountability on resume."
+        },
+        {
+          "requirement": "Production monitoring and SLO alerting",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Prometheus", "Grafana", "SLOs"],
+          "label_notes": "Explicit observability setup."
+        },
+        {
+          "requirement": "Automate server provisioning and configuration",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Ansible playbooks", "provisioning"],
+          "label_notes": "IaC-style duty via Ansible."
+        }
+      ]
+    },
+    {
+      "id": "data_engineer",
+      "job_title": "Data Engineer",
+      "raw_resume": "Priya Nair — Data Engineer\nSkills: SQL, Python, Airflow, dbt, BigQuery, ETL design\nExperience:\n- Built Airflow DAGs ingesting 5M rows/day into BigQuery warehouse.\n- Modeled star schema with dbt; documented data lineage.\n- Optimized SQL queries reducing batch runtime 40%.\nTools: Git, Docker (basic).",
+      "raw_jd": "Data Engineer\nRequired: SQL, Python, Airflow, cloud data warehouse (BigQuery/Snowflake), ETL.\nRequired: Apache Spark and Kafka streaming pipelines.\nNice-to-have: dbt, data governance.",
+      "requirements": [
+        {
+          "requirement": "SQL and Python for ETL",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["SQL", "Python", "ETL", "Airflow"],
+          "label_notes": "Strong ETL narrative."
+        },
+        {
+          "requirement": "Airflow orchestration",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Airflow DAGs"],
+          "label_notes": "Production Airflow at scale."
+        },
+        {
+          "requirement": "dbt and data modeling",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["dbt", "star schema"],
+          "label_notes": "dbt explicitly used."
+        },
+        {
+          "requirement": "Apache Spark",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No Spark on resume."
+        },
+        {
+          "requirement": "Kafka streaming pipelines",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Batch-only experience."
+        }
+      ],
+      "duty_requirements": [
+        {
+          "requirement": "Orchestrate batch data ingestion pipelines",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Airflow DAGs", "5M rows", "ingesting"],
+          "label_notes": "Daily batch pipeline ownership."
+        },
+        {
+          "requirement": "Model warehouse schemas and document lineage",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["star schema", "dbt", "data lineage"],
+          "label_notes": "Modeling duty with dbt."
+        },
+        {
+          "requirement": "Optimize SQL for pipeline performance",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Optimized SQL", "batch runtime"],
+          "label_notes": "Performance tuning on ETL jobs."
+        }
+      ]
+    },
+    {
+      "id": "fullstack_junior",
+      "job_title": "Full Stack Engineer",
+      "raw_resume": "Chris Wong — Junior Developer\nSkills: JavaScript, Node.js, Express, MongoDB, React\nExperience:\n- Built MERN stack todo app and team project management tool.\n- Integrated Stripe payments in Node.js side project.\n- 2 years internship experience at startup.\nEducation: Bootcamp graduate 2024.",
+      "raw_jd": "Full Stack Engineer\nRequired: JavaScript/TypeScript, Node.js, React, database design.\nRequired: System design for scalable services and Redis caching.\nNice-to-have: PostgreSQL, AWS.",
+      "requirements": [
+        {
+          "requirement": "JavaScript and Node.js",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Node.js", "Express", "JavaScript"],
+          "label_notes": "Multiple Node projects."
+        },
+        {
+          "requirement": "React frontend",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["React", "MERN"],
+          "label_notes": "React in stack."
+        },
+        {
+          "requirement": "MongoDB or SQL database design",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["MongoDB"],
+          "label_notes": "MongoDB only; no SQL depth."
+        },
+        {
+          "requirement": "System design at scale",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Junior/bootcamp projects only."
+        },
+        {
+          "requirement": "Redis caching",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Not mentioned."
+        }
+      ]
+    },
+    {
+      "id": "mobile_ios",
+      "job_title": "iOS Engineer",
+      "raw_resume": "Elena Rossi — iOS Developer\nSkills: Swift, UIKit, SwiftUI, Xcode, Core Data\nExperience:\n- Shipped 3 App Store apps with 100k+ downloads using SwiftUI.\n- Implemented offline sync with Core Data and background fetch.\n- Collaborated with backend team on REST API integration.\nNo Android or cross-platform experience listed.",
+      "raw_jd": "iOS Engineer\nRequired: Swift, SwiftUI/UIKit, iOS app lifecycle, App Store release.\nRequired: Android/Kotlin cross-platform and mobile CI/CD (Fastlane).\nNice-to-have: Combine, modular architecture.",
+      "requirements": [
+        {
+          "requirement": "Swift and SwiftUI development",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Swift", "SwiftUI", "App Store"],
+          "label_notes": "Strong iOS shipping record."
+        },
+        {
+          "requirement": "Core Data and offline mobile patterns",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Core Data", "offline sync"],
+          "label_notes": "Concrete mobile data patterns."
+        },
+        {
+          "requirement": "REST API integration",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["REST API"],
+          "label_notes": "Mentioned but not deep backend work."
+        },
+        {
+          "requirement": "Android or Kotlin cross-platform",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Explicitly iOS only."
+        },
+        {
+          "requirement": "Mobile CI/CD Fastlane",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No CI/CD tooling listed."
+        }
+      ]
+    },
+    {
+      "id": "qa_automation",
+      "job_title": "QA Automation Engineer",
+      "raw_resume": "David Kim — QA Engineer\nSkills: Selenium, Cypress, Python, Postman, Jira\nExperience:\n- Automated 200+ regression tests with Cypress for web app.\n- Built API test suite with Postman collections and Newman CLI.\n- Manual exploratory testing for mobile releases.\nNo performance or security testing tools listed.",
+      "raw_jd": "QA Automation Engineer\nRequired: Test automation (Selenium/Cypress), API testing, Python scripting.\nRequired: Performance testing (JMeter/k6) and security testing (OWASP).\nNice-to-have: CI integration, mobile automation.",
+      "requirements": [
+        {
+          "requirement": "Cypress or Selenium automation",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Cypress", "Selenium", "Automated"],
+          "label_notes": "Both tools with scale."
+        },
+        {
+          "requirement": "API testing with Postman or similar",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Postman", "API test"],
+          "label_notes": "API suite documented."
+        },
+        {
+          "requirement": "Python test scripting",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["Python"],
+          "label_notes": "Listed but automation primarily JS-based."
+        },
+        {
+          "requirement": "Performance testing JMeter or k6",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No load testing experience."
+        },
+        {
+          "requirement": "Security testing OWASP",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Not mentioned."
+        }
+      ],
+      "duty_requirements": [
+        {
+          "requirement": "Automate web regression testing at scale",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["regression tests", "Cypress", "200+"],
+          "label_notes": "High-volume UI automation duty."
+        },
+        {
+          "requirement": "Build and maintain API test suites",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["API test suite", "Postman", "Newman"],
+          "label_notes": "API testing accountability."
+        },
+        {
+          "requirement": "Manual exploratory testing for releases",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["exploratory testing", "mobile releases"],
+          "label_notes": "Exploratory duty explicitly listed."
+        }
+      ]
+    },
+    {
+      "id": "platform_llm",
+      "job_title": "AI Platform Engineer",
+      "raw_resume": "Taylor Brooks — Software Engineer\nSkills: Python, LangChain, OpenAI API, FastAPI, vector search basics\nExperience:\n- Built internal copilot using LangChain agents and OpenAI GPT-4.\n- Implemented chunking and embedding pipeline with Pinecone.\n- Deployed FastAPI wrapper with rate limiting.\nLimited production ML ops or multi-agent orchestration at scale.",
+      "raw_jd": "AI Platform Engineer\nRequired: LLM application development, LangChain or LangGraph, Python APIs.\nRequired: Multi-agent orchestration at scale, LangSmith eval, production monitoring.\nNice-to-have: RAG optimization, fine-tuning.",
+      "requirements": [
+        {
+          "requirement": "LangChain or LangGraph LLM apps",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["LangChain", "OpenAI", "copilot"],
+          "label_notes": "Hands-on LangChain project."
+        },
+        {
+          "requirement": "Python FastAPI for AI services",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["FastAPI"],
+          "label_notes": "API deployment experience."
+        },
+        {
+          "requirement": "Vector search and RAG",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["embedding", "Pinecone", "chunking"],
+          "label_notes": "Basic RAG; not optimized at scale."
+        },
+        {
+          "requirement": "Multi-agent orchestration at scale",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Single-agent copilot only."
+        },
+        {
+          "requirement": "LangSmith evaluation and production monitoring",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No eval or monitoring tooling."
+        }
+      ]
+    },
+    {
+      "id": "career_switcher",
+      "job_title": "Backend Engineer (Career Switch)",
+      "raw_resume": "Jamie Foster — Career Switcher from Finance\nSkills: Python (self-taught), SQL, Excel, basic Git\nExperience:\n- Completed 6-month coding bootcamp with capstone inventory API in Flask.\n- Finance analyst 5 years: SQL reporting, automation with Python scripts.\n- Personal GitHub: 3 small Python projects, no production deploy experience.\nNo Docker, Kubernetes, or cloud certifications.",
+      "raw_jd": "Backend Engineer\nRequired: Python backend frameworks, SQL databases, Git, REST APIs.\nRequired: Docker, cloud deployment (AWS), production debugging experience.\nNice-to-have: Redis, message queues.",
+      "requirements": [
+        {
+          "requirement": "Python programming",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["Python", "Flask", "bootcamp"],
+          "label_notes": "Learning projects + scripts; not production backend."
+        },
+        {
+          "requirement": "SQL and data querying",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["SQL", "reporting"],
+          "label_notes": "5 years SQL in finance role."
+        },
+        {
+          "requirement": "Git version control",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["Git", "GitHub"],
+          "label_notes": "Basic usage only."
+        },
+        {
+          "requirement": "Docker containerization",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Explicitly absent."
+        },
+        {
+          "requirement": "AWS cloud deployment",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No cloud experience."
+        }
+      ]
+    }
+  ]
+}

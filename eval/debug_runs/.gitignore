@@ -1,0 +1,3 @@
+# Local pipeline debug artifacts (extraction .txt, parsed .json). Safe to delete.
+*
+!.gitignore

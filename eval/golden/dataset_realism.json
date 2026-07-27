@@ -1,0 +1,772 @@
+{
+  "version": 1,
+  "layer": "realism",
+  "description": "Layer 2 eval set: realistic resume+JD pairs inspired by public datasets (job_resume_fit style). Labels are human-assigned on requirements CareersLow should extract — not copied AI match scores.",
+  "cases": [
+    {
+      "id": "realism_data_scientist_01",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Data Science",
+      "source_category": "Data Science",
+      "job_title": "Data Scientist",
+      "raw_resume": "PRIYA SHARMA\nSan Jose, CA | priya.sharma@email.com | linkedin.com/in/priyasharma\n\nSUMMARY\nData analyst with 4 years turning business questions into SQL dashboards and Tableau reports. Comfortable with Python for ETL scripts and A/B test readouts.\n\nEXPERIENCE\nBusiness Intelligence Analyst | RetailCo | 2021–Present\n• Built Tableau dashboards for merchandising KPIs; reduced report turnaround from 3 days to same-day.\n• Wrote SQL queries against Snowflake warehouse (joins, window functions, cohort analysis).\n• Partnered with product on experiment design; summarized uplift in weekly stakeholder decks.\n\nJunior Analyst | Insight Labs | 2019–2021\n• Maintained Excel models and Looker explores for marketing spend.\n• Python (pandas) for one-off data cleaning pipelines.\n\nEDUCATION\nB.S. Statistics, UC Davis\n\nSKILLS\nSQL, Python, pandas, Tableau, Looker, Snowflake, Excel, A/B testing",
+      "raw_jd": "Data Scientist — Acme Analytics\nLocation: Remote (US)\n\nAbout Acme:\nAcme Analytics helps enterprises deploy machine learning at scale. We are an equal opportunity employer.\n\nWhat you'll do:\n• Build and deploy production ML models (classification, ranking, forecasting)\n• Train deep learning models with PyTorch or TensorFlow on large GPU clusters\n• Design feature stores and real-time inference pipelines\n• Collaborate with ML platform team on model monitoring and drift detection\n\nRequirements:\n• 3+ years data science or ML engineering experience\n• Strong Python and SQL; experience with scikit-learn, PyTorch or TensorFlow\n• MLOps: MLflow, Kubeflow, or similar model lifecycle tools\n• Spark or distributed data processing for feature engineering\n• Excellent communication skills\n\nNice to have: LLM fine-tuning, LangChain, experiment tracking (Weights & Biases)\n\nBenefits: Health, 401k, unlimited PTO. Acme celebrates diversity.",
+      "requirements": [
+        {
+          "requirement": "Python and SQL",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Python", "SQL queries", "Snowflake", "pandas"],
+          "label_notes": "Python and SQL used repeatedly in production analytics context."
+        },
+        {
+          "requirement": "scikit-learn, PyTorch or TensorFlow",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No ML frameworks on resume; analyst/BI background only."
+        },
+        {
+          "requirement": "MLOps and model lifecycle tools",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": [],
+          "label_notes": "No MLflow, deployment, or model monitoring experience."
+        },
+        {
+          "requirement": "Spark or distributed data processing",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Snowflake SQL only; no Spark or distributed compute."
+        },
+        {
+          "requirement": "A/B testing and experiment design",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["A/B test readouts", "experiment design", "A/B testing"],
+          "label_notes": "Experiment readouts and design partnership, but not ML experiment platform depth."
+        }
+      ]
+    },
+    {
+      "id": "realism_java_backend_02",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Java Developer",
+      "source_category": "Java Developer",
+      "job_title": "Senior Java Backend Engineer",
+      "raw_resume": "MARCUS REED\nAustin, TX\n\nSoftware Engineer (Java) — FinServe Inc. (2018–Present)\n• Develop REST microservices in Java 11 and Spring Boot for payment authorization.\n• Maintain Oracle DB schemas; write stored procedures and optimize slow queries.\n• Unit tests with JUnit; participate in code reviews and agile ceremonies.\n• Deploy WAR artifacts to on-prem Tomcat clusters (manual release checklist).\n\nSoftware Engineer — CodeBase LLC (2015–2018)\n• Java EE applications, Hibernate ORM, Maven builds.\n\nSkills: Java, Spring Boot, REST, Oracle, SQL, JUnit, Git, Maven, Tomcat\nEducation: B.S. Computer Science, UT Austin",
+      "raw_jd": "Senior Java Backend Engineer @ NovaPay\n\nNovaPay is revolutionizing B2B payments. We value inclusion and belong to a global team.\n\nYou will:\n- Design high-throughput Java services on Kubernetes\n- Own PostgreSQL and Redis-backed APIs consumed by mobile clients\n- Implement CI/CD with Jenkins or GitHub Actions; containerize with Docker\n- Mentor junior engineers on Spring Boot best practices\n\nMust have:\n• 5+ years Java/Spring Boot in production\n• Kubernetes and Docker in production environments\n• PostgreSQL or MySQL; caching with Redis\n• Automated testing (JUnit, integration tests) and observability (Prometheus/Grafana)\n\nPreferred: Kafka event streaming, AWS EKS, Terraform\n\nEOE. Background check required.",
+      "requirements": [
+        {
+          "requirement": "Java and Spring Boot",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Java 11", "Spring Boot", "microservices"],
+          "label_notes": "Core stack for 7+ years with payment domain."
+        },
+        {
+          "requirement": "Kubernetes and Docker",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "On-prem Tomcat deploys only; no K8s or Docker mentioned."
+        },
+        {
+          "requirement": "PostgreSQL and Redis",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Oracle DB", "SQL"],
+          "label_notes": "Strong relational SQL on Oracle; no Postgres or Redis."
+        },
+        {
+          "requirement": "JUnit and automated testing",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["JUnit", "Unit tests"],
+          "label_notes": "JUnit explicitly listed with unit test ownership."
+        },
+        {
+          "requirement": "CI/CD and observability",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["manual release checklist"],
+          "label_notes": "Manual Tomcat releases; no CI/CD or Prometheus/Grafana."
+        }
+      ]
+    },
+    {
+      "id": "realism_react_frontend_03",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#React Developer",
+      "source_category": "React Developer",
+      "job_title": "Frontend Engineer (React)",
+      "raw_resume": "JORDAN LEE | Frontend Developer\n\nExperience\nUI Developer, BrightWeb (2020–now)\n- Built customer portal in React 18 + TypeScript; used Redux Toolkit for cart state.\n- Implemented responsive layouts with CSS modules and occasional Tailwind utility classes.\n- Integrated REST APIs; wrote Jest + React Testing Library tests for checkout flow.\n- Improved Lighthouse performance score from 62 to 81 (code splitting, lazy routes).\n\nWeb Developer, Pixel Studio (2017–2020)\n- jQuery and Bootstrap marketing sites; migrated one client site to React.\n\nSkills: React, TypeScript, JavaScript, HTML/CSS, Redux, Jest, Git, Figma handoff\nEducation: Associate Degree, Web Development",
+      "raw_jd": "Frontend Engineer — ShopStream\n\nShopStream is a fast-growing e-commerce platform.\n\nResponsibilities:\n• Build accessible (WCAG 2.1 AA) React interfaces for checkout and account management\n• Collaborate with design system team on component library (Storybook)\n• Optimize Core Web Vitals; mentor on performance profiling\n• Work with GraphQL APIs (Apollo Client) and feature flags (LaunchDarkly)\n\nRequirements:\n• 3+ years React and TypeScript in production\n• Strong HTML/CSS; accessibility testing experience\n• GraphQL client development\n• Unit and E2E testing (Cypress or Playwright)\n• Experience with design systems / Storybook\n\nWe offer competitive salary and remote work.\n\nShopStream is an equal opportunity employer.",
+      "requirements": [
+        {
+          "requirement": "React and TypeScript",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["React 18", "TypeScript", "production"],
+          "label_notes": "Primary stack for 4+ years at BrightWeb."
+        },
+        {
+          "requirement": "accessibility and WCAG",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No a11y tooling or WCAG mentioned despite responsive CSS work."
+        },
+        {
+          "requirement": "GraphQL and Apollo Client",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["REST APIs"],
+          "label_notes": "REST only; no GraphQL."
+        },
+        {
+          "requirement": "Jest and unit testing",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["Jest", "React Testing Library"],
+          "label_notes": "Explicit test coverage for checkout flow."
+        },
+        {
+          "requirement": "E2E testing with Cypress or Playwright",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Jest", "React Testing Library"],
+          "label_notes": "Unit/integration tests yes; no Cypress/Playwright called out."
+        }
+      ]
+    },
+    {
+      "id": "realism_devops_sre_04",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#DevOps Engineer",
+      "source_category": "DevOps Engineer",
+      "job_title": "DevOps / SRE Engineer",
+      "raw_resume": "SAM OKON\nDevOps Engineer | CloudFirst (2019–Present)\n• Manage AWS infrastructure: EC2, S3, RDS, IAM policies, VPC networking.\n• Dockerized legacy Java apps; docker-compose for staging environments.\n• Shell/Python automation for backups and log rotation.\n• On-call rotation for P1 incidents; postmortems documented in Confluence.\n• Basic CloudWatch alarms; team exploring Prometheus but not production yet.\n\nSystems Admin — HostPro (2016–2019)\n• Linux server patching, Apache/Nginx, cron jobs.\n\nCertifications: AWS Solutions Architect Associate\nSkills: AWS, Docker, Linux, Bash, Python, Terraform (personal homelab), Git",
+      "raw_jd": "Site Reliability Engineer — ScaleRail\n\nScaleRail operates mission-critical SaaS for logistics customers worldwide.\n\nWhat we need:\n• Operate Kubernetes clusters (EKS) with GitOps (Argo CD)\n• Infrastructure as Code: Terraform modules for multi-account AWS\n• SLO/error budget culture; Prometheus + Grafana + PagerDuty on-call\n• CI/CD pipelines (GitHub Actions) with security scanning\n• Incident response and blameless postmortems\n\nQualifications:\n• 4+ years SRE or DevOps in production\n• Kubernetes administration and troubleshooting\n• Terraform at scale (not just tutorials)\n• Observability stack experience (Prometheus, Grafana, OpenTelemetry)\n• Strong scripting (Python or Go)\n\nBonus: Service mesh (Istio), Kafka operations\n\nScaleRail supports veterans and diverse candidates.",
+      "requirements": [
+        {
+          "requirement": "AWS infrastructure",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["AWS", "EC2", "S3", "RDS", "VPC"],
+          "label_notes": "Multi-service AWS production ownership + SA cert."
+        },
+        {
+          "requirement": "Kubernetes and EKS",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Docker/compose only; no K8s ops."
+        },
+        {
+          "requirement": "Terraform at scale",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Terraform (personal homelab)"],
+          "label_notes": "Homelab Terraform; JD wants production multi-account IaC."
+        },
+        {
+          "requirement": "Prometheus and Grafana",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["exploring Prometheus", "CloudWatch alarms"],
+          "label_notes": "CloudWatch in prod; Prometheus exploratory only."
+        },
+        {
+          "requirement": "Python scripting",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["Python automation", "Shell/Python"],
+          "label_notes": "Automation scripts in Python for ops tasks."
+        }
+      ]
+    },
+    {
+      "id": "realism_hr_mismatch_05",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#HR",
+      "source_category": "HR",
+      "job_title": "Technical Product Manager",
+      "raw_resume": "ELENA VARGAS\nHuman Resources Business Partner | PeopleFirst Corp | 2017–Present\n• Supported 400-employee engineering org with hiring, onboarding, and performance cycles.\n• Partnered with recruiters on job descriptions and interview loops for software roles.\n• Led DEI initiatives and manager training on structured behavioral interviews.\n• HRIS: Workday reports; Excel tracking for headcount planning.\n\nHR Coordinator | TalentHub (2014–2017)\n• Scheduling interviews, offer letters, background check coordination.\n\nEducation: B.A. Psychology, San Diego State\nSkills: HRBP, Workday, employee relations, recruiting coordination, Excel, presentation skills",
+      "raw_jd": "Technical Product Manager — ShipFast\n\nShipFast builds developer tools for CI/CD teams.\n\nYou will own roadmap for our pipeline analytics product, working with engineering and design.\n\nRequirements:\n• 5+ years product management in B2B SaaS or developer tools\n• Ability to write PRDs and prioritize backlog using data (SQL, Amplitude/Mixpanel)\n• Technical fluency: APIs, webhooks, CI/CD concepts (Jenkins, GitHub Actions)\n• Stakeholder management with engineering leads and enterprise customers\n• Experience shipping features in agile squads (Jira, scrum)\n\nNice to have: Former software engineer, experience with DORA metrics\n\nShipFast offers equity and remote work.",
+      "requirements": [
+        {
+          "requirement": "product management in B2B SaaS",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": [],
+          "label_notes": "HR background; no PM title or roadmap ownership."
+        },
+        {
+          "requirement": "PRDs and data-driven prioritization",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Excel tracking", "Workday reports"],
+          "label_notes": "HR reporting only; no product analytics or PRDs."
+        },
+        {
+          "requirement": "CI/CD and developer tools fluency",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": ["interview loops for software roles"],
+          "label_notes": "Hiring for engineers ≠ CI/CD product knowledge."
+        },
+        {
+          "requirement": "stakeholder management",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["engineering org", "manager training", "employee relations"],
+          "label_notes": "Strong people/partner skills but not product stakeholder context."
+        },
+        {
+          "requirement": "agile and Jira",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No agile squad or Jira delivery experience on resume."
+        }
+      ]
+    },
+    {
+      "id": "realism_python_backend_06",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Python Developer",
+      "source_category": "Python Developer",
+      "job_title": "Python Backend Engineer",
+      "raw_resume": "DIANA OKAFOR\nPython Developer | LogiTech Solutions | 2020–Present\n• Django REST APIs for warehouse inventory; PostgreSQL queries and ORM optimization.\n• Celery workers for async email notifications and nightly CSV exports.\n• pytest unit tests; GitHub PR reviews; deploy via Fabric scripts to Ubuntu VMs.\n• Integrated Stripe webhooks for billing events.\n\nJunior Developer | WebStart (2018–2020)\n• Flask prototypes and internal admin tools.\n\nSkills: Python, Django, Flask, PostgreSQL, Celery, Redis, Git, Linux\nEducation: B.Tech Information Technology",
+      "raw_jd": "Python Backend Engineer — FleetRoute\n\nFleetRoute powers last-mile delivery for enterprise retailers. We believe in flexible work and diverse teams.\n\nResponsibilities:\n• Build async FastAPI services handling 100k+ events/day\n• Event-driven architecture with Kafka and Redis streams\n• PostgreSQL + read replicas; query tuning and connection pooling\n• Observability: structured logging, OpenTelemetry traces\n• On-call rotation for production incidents\n\nRequirements:\n• 4+ years Python backend in production\n• FastAPI or asyncio-heavy services at scale\n• Kafka or RabbitMQ messaging\n• PostgreSQL performance tuning\n• Docker and Kubernetes deployment experience\n\nBenefits: RSUs, parental leave, learning stipend.\n\nFleetRoute is an equal opportunity employer.",
+      "requirements": [
+        {
+          "requirement": "Python backend in production",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Python Developer", "Django REST", "Flask"],
+          "label_notes": "5+ years Python backend with Django in production."
+        },
+        {
+          "requirement": "FastAPI or asyncio services",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Django REST", "Flask"],
+          "label_notes": "Sync Django/Flask only; no FastAPI or asyncio mentioned."
+        },
+        {
+          "requirement": "Kafka or RabbitMQ messaging",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Celery workers"],
+          "label_notes": "Celery task queue only; no Kafka/RabbitMQ."
+        },
+        {
+          "requirement": "PostgreSQL performance tuning",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["PostgreSQL", "ORM optimization"],
+          "label_notes": "PostgreSQL used but no read replicas or advanced tuning cited."
+        },
+        {
+          "requirement": "Docker and Kubernetes",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Fabric scripts", "Ubuntu VMs"],
+          "label_notes": "VM/Fabric deploys; no containers or K8s."
+        }
+      ]
+    },
+    {
+      "id": "realism_node_fullstack_07",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Full Stack Developer",
+      "source_category": "Full Stack Developer",
+      "job_title": "Full Stack Engineer",
+      "raw_resume": "TYLER NGUYEN\nFull Stack Developer — ShopLocal (2019–Now)\n• Node.js Express APIs for vendor portal; MongoDB document models.\n• React SPA for inventory management; Material UI components.\n• JWT auth, bcrypt password hashing, basic rate limiting middleware.\n• Heroku deployments; environment config via dotenv.\n\nFreelance (2017–2019)\n• WordPress sites and small PHP contact forms.\n\nSkills: JavaScript, Node.js, Express, React, MongoDB, HTML, CSS, Git\nEducation: Coding bootcamp certificate, General Assembly",
+      "raw_jd": "Full Stack Engineer — HealthBridge\n\nHealthBridge connects patients and clinicians through secure digital care plans.\n\nYou will:\n• Own features across Next.js frontend and NestJS backend\n• PostgreSQL with Prisma ORM; migrations and seed data\n• HIPAA-aware logging and audit trails\n• AWS deployment (ECS Fargate) with Terraform\n• Write integration tests and participate in SOC 2 prep\n\nMust have:\n• 3+ years full stack JavaScript/TypeScript\n• Next.js and NestJS or similar typed Node framework\n• Relational databases (PostgreSQL) in production\n• Cloud deployment on AWS\n• Security best practices for healthcare data\n\nHealthBridge offers comprehensive benefits. EOE/M/F/D/V.",
+      "requirements": [
+        {
+          "requirement": "full stack JavaScript",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Node.js Express", "React SPA", "Full Stack Developer"],
+          "label_notes": "Multi-year Node + React production experience."
+        },
+        {
+          "requirement": "Next.js and NestJS",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Express", "React"],
+          "label_notes": "Express/React stack; no Next.js or NestJS."
+        },
+        {
+          "requirement": "PostgreSQL in production",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["MongoDB"],
+          "label_notes": "MongoDB only; no relational DB experience."
+        },
+        {
+          "requirement": "AWS cloud deployment",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Heroku deployments"],
+          "label_notes": "Heroku PaaS only; no AWS."
+        },
+        {
+          "requirement": "security and healthcare compliance",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["JWT auth", "bcrypt", "rate limiting"],
+          "label_notes": "Basic web security; no HIPAA or healthcare context."
+        }
+      ]
+    },
+    {
+      "id": "realism_android_mobile_08",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Android Developer",
+      "source_category": "Android Developer",
+      "job_title": "Senior Android Engineer",
+      "raw_resume": "AMIR HASSAN\nAndroid Developer | MoveFast Apps | 2018–Present\n• Kotlin Android apps for fitness tracking; MVVM with ViewModel and LiveData.\n• Retrofit REST clients; Room local database for offline workouts.\n• Published 2 apps on Google Play (100k+ downloads combined).\n• Espresso UI tests for critical flows; Firebase Crashlytics integration.\n\nJunior Android Dev | AppWorks (2016–2018)\n• Java Android maintenance; XML layouts.\n\nSkills: Kotlin, Java, Android SDK, Retrofit, Room, Firebase, Git\nEducation: B.S. Software Engineering",
+      "raw_jd": "Senior Android Engineer — PayWave\n\nPayWave is a mobile payments unicorn serving 20M users globally.\n\nWhat you'll build:\n• High-performance Kotlin Compose UI for payments and KYC flows\n• Modular architecture (multi-module Gradle, Hilt DI)\n• Secure enclave / biometric auth integration\n• Cross-platform coordination with iOS team on shared API contracts\n• Performance profiling (Android Studio Profiler, Systrace)\n\nRequirements:\n• 5+ years Android development shipping consumer apps\n• Jetpack Compose in production\n• Dependency injection (Hilt/Dagger)\n• Security: certificate pinning, ProGuard/R8 hardening\n• CI/CD for mobile (Bitrise or Fastlane)\n\nPayWave celebrates global talent. Competitive comp + equity.",
+      "requirements": [
+        {
+          "requirement": "Android development shipping consumer apps",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Kotlin Android apps", "Google Play", "100k+ downloads"],
+          "label_notes": "6+ years Android with published consumer apps."
+        },
+        {
+          "requirement": "Jetpack Compose",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["XML layouts", "MVVM"],
+          "label_notes": "XML/MVVM only; no Compose mentioned."
+        },
+        {
+          "requirement": "Hilt or Dagger dependency injection",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No DI framework on resume."
+        },
+        {
+          "requirement": "mobile security and biometrics",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No security hardening or biometric auth experience."
+        },
+        {
+          "requirement": "Espresso or mobile testing",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["Espresso UI tests"],
+          "label_notes": "Espresso tests explicitly listed."
+        }
+      ]
+    },
+    {
+      "id": "realism_cloud_architect_09",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Cloud Architect",
+      "source_category": "Cloud Architect",
+      "job_title": "Cloud Solutions Architect",
+      "raw_resume": "RACHEL KIM\nSolutions Architect | CloudBridge Consulting | 2017–Present\n• Designed AWS landing zones for mid-market clients: VPC, IAM, S3, RDS.\n• Led migrations from on-prem VMware to AWS EC2; cut hosting costs 35%.\n• Wrote architecture docs and ran client workshops on well-architected reviews.\n• Terraform modules for repeatable client baselines (consulting engagements).\n• AWS Certified Solutions Architect Professional.\n\nSystems Engineer | DataHost (2013–2017)\n• VMware, SAN storage, Windows/Linux server admin.\n\nSkills: AWS, Terraform, VPC, IAM, EC2, RDS, S3, CloudFormation basics, presentations",
+      "raw_jd": "Principal Cloud Architect — GlobalBank Tech\n\nGlobalBank Tech is modernizing core banking on multi-cloud.\n\nYou will:\n• Define reference architectures for Azure + AWS hybrid workloads\n• Lead Kubernetes platform team (AKS/EKS) and service mesh adoption\n• Establish FinOps practice and cost allocation tags\n• Mentor architects on zero-trust networking and PCI-DSS controls\n• Present to C-suite on multi-year cloud transformation roadmap\n\nRequirements:\n• 10+ years infrastructure/architecture; 5+ years cloud at scale\n• Deep AWS and Azure (landing zones, networking, identity)\n• Kubernetes platform design (multi-cluster, GitOps)\n• Financial services or regulated industry experience\n• Executive stakeholder communication\n\nGlobalBank is an equal opportunity employer. Security clearance a plus.",
+      "requirements": [
+        {
+          "requirement": "AWS cloud architecture",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["AWS landing zones", "AWS Certified", "EC2", "RDS", "VPC"],
+          "label_notes": "Multi-year AWS architecture with professional cert."
+        },
+        {
+          "requirement": "Azure cloud experience",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "AWS-only background; no Azure."
+        },
+        {
+          "requirement": "Kubernetes platform design",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "EC2/VMware migrations; no K8s platform work."
+        },
+        {
+          "requirement": "financial services or regulated industry",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["mid-market clients"],
+          "label_notes": "General consulting; no banking/regulatory cited."
+        },
+        {
+          "requirement": "Terraform infrastructure as code",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["Terraform modules", "repeatable client baselines"],
+          "label_notes": "Production Terraform in consulting context."
+        }
+      ]
+    },
+    {
+      "id": "realism_qa_automation_10",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#QA Engineer",
+      "source_category": "QA Engineer",
+      "job_title": "QA Automation Engineer",
+      "raw_resume": "NINA PATEL\nQA Engineer | StreamSoft | 2019–Present\n• Manual test cases for SaaS billing module; regression suites in TestRail.\n• Selenium WebDriver (Java) for smoke tests on Chrome/Firefox.\n• API testing with Postman collections; validated JSON schemas for REST endpoints.\n• Filed 200+ Jira bugs with repro steps and screenshots.\n• Participated in agile sprint planning and demo sign-offs.\n\nQA Intern | SoftLine (2018–2019)\n• Exploratory testing on mobile web.\n\nSkills: Manual testing, Selenium, Java, Postman, TestRail, Jira, SQL basics",
+      "raw_jd": "Senior QA Automation Engineer — NeoTrade\n\nNeoTrade is a real-time trading platform. Quality is non-negotiable.\n\nResponsibilities:\n• Build Playwright/Cypress E2E suites for web trading dashboard\n• Performance testing with k6 or JMeter under load\n• Contract testing for microservices (Pact)\n• CI integration: tests gate merges in GitHub Actions\n• Champion shift-left testing with developers\n\nRequirements:\n• 4+ years QA automation in fintech or high-stakes domains\n• Playwright or Cypress at scale (not just Selenium tutorials)\n• Performance and load testing experience\n• API contract testing (Pact or similar)\n• CI/CD test pipeline ownership\n\nNeoTrade offers bonus and remote options.",
+      "requirements": [
+        {
+          "requirement": "QA automation experience",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["Selenium WebDriver", "API testing", "Postman"],
+          "label_notes": "5 years QA with Selenium and API automation."
+        },
+        {
+          "requirement": "Playwright or Cypress",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Selenium WebDriver"],
+          "label_notes": "Selenium only; no Playwright/Cypress."
+        },
+        {
+          "requirement": "performance and load testing",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No k6, JMeter, or load testing mentioned."
+        },
+        {
+          "requirement": "API contract testing",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Postman", "JSON schemas", "REST endpoints"],
+          "label_notes": "Postman API validation but no Pact/contract testing."
+        },
+        {
+          "requirement": "CI/CD test pipeline",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No CI pipeline ownership cited."
+        }
+      ]
+    },
+    {
+      "id": "realism_cybersecurity_11",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Cybersecurity",
+      "source_category": "Cybersecurity",
+      "job_title": "Security Engineer",
+      "raw_resume": "JAMES WRIGHT\nIT Security Analyst | Metro Health System | 2018–Present\n• SIEM alert triage in Splunk; escalated phishing and malware incidents.\n• Coordinated patch cycles with sysadmins; tracked CVE remediations in ServiceNow.\n• Ran quarterly phishing simulations and security awareness lunch-and-learns.\n• Firewall rule change requests; basic Nessus vulnerability scan reviews.\n\nHelp Desk | TechSupport Co (2015–2018)\n• Tier 1 tickets, password resets, Active Directory account unlocks.\n\nCertifications: CompTIA Security+, Network+\nSkills: Splunk, SIEM, incident response, Nessus, Active Directory, ServiceNow",
+      "raw_jd": "Application Security Engineer — SecureCloud\n\nSecureCloud builds zero-trust SaaS for enterprise security teams.\n\nYou will:\n• Perform SAST/DAST on Python and Go microservices\n• Threat model new features with product and engineering\n• Build security automation in CI (Semgrep, Snyk, OWASP ZAP)\n• Respond to bug bounty submissions and coordinate fixes\n• Drive SSDLC adoption across 15 engineering squads\n\nRequirements:\n• 4+ years appsec or security engineering in software companies\n• Hands-on SAST/DAST tooling and secure code review (Python, Go, JS)\n• Threat modeling (STRIDE) and security architecture reviews\n• Bug bounty / responsible disclosure program experience\n• Developer-friendly security advocacy\n\nSecureCloud is remote-first. We value diverse backgrounds.",
+      "requirements": [
+        {
+          "requirement": "SIEM and incident response",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["SIEM alert triage", "Splunk", "incidents"],
+          "label_notes": "Production SIEM triage and incident escalation."
+        },
+        {
+          "requirement": "SAST/DAST and secure code review",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Ops/security analyst role; no appsec code review."
+        },
+        {
+          "requirement": "threat modeling",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": [],
+          "label_notes": "No STRIDE or threat modeling experience."
+        },
+        {
+          "requirement": "vulnerability scanning",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["Nessus vulnerability scan", "CVE remediations"],
+          "label_notes": "Nessus scan reviews and CVE tracking; not developer-facing SAST."
+        },
+        {
+          "requirement": "security certifications",
+          "gold_bucket": "weak",
+          "gold_score_min": 5,
+          "gold_score_max": 7,
+          "relevant_resume_snippets": ["CompTIA Security+", "Network+"],
+          "label_notes": "Entry-level certs; JD wants deep appsec engineering."
+        }
+      ]
+    },
+    {
+      "id": "realism_business_analyst_12",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Business Analyst",
+      "source_category": "Business Analyst",
+      "job_title": "Senior Business Analyst",
+      "raw_resume": "SOFIA MARTINEZ\nBusiness Analyst | RetailChain Inc | 2017–Present\n• Gathered requirements from store ops and merchandising via interviews and workshops.\n• Wrote BRDs and user stories in Jira for POS and inventory system upgrades.\n• Process flow diagrams in Visio; UAT coordination with 30 store pilots.\n• SQL queries in SQL Server for ad-hoc sales reporting.\n• Facilitated sprint demos with product owner and vendor dev team.\n\nProject Coordinator | LogiCorp (2014–2017)\n• Timeline tracking, meeting notes, stakeholder updates.\n\nSkills: Requirements gathering, Jira, Confluence, Visio, SQL, UAT, Agile, Excel",
+      "raw_jd": "Senior Business Analyst — InsureTech Digital\n\nInsureTech is replatforming policy administration for P&C insurance.\n\nRole:\n• Lead discovery for claims automation workflows (BPMN, AS-IS/TO-BE)\n• Partner with actuarial and compliance on regulatory reporting requirements\n• Define API requirements for policy admin integrations (REST, JSON)\n• Data mapping for legacy mainframe migration to cloud\n• Support go-live cutover and hypercare for enterprise clients\n\nRequirements:\n• 6+ years BA in insurance or financial services\n• BPMN process modeling and enterprise workflow design\n• Experience with policy admin or claims systems (Guidewire a plus)\n• API/integration requirements for modern platforms\n• Regulatory knowledge (state filing, compliance audits)\n\nInsureTech offers hybrid work in Hartford or remote US.",
+      "requirements": [
+        {
+          "requirement": "requirements gathering and user stories",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Gathered requirements", "user stories", "Jira", "BRDs"],
+          "label_notes": "Core BA work for 7+ years with Jira/BRDs."
+        },
+        {
+          "requirement": "insurance or financial services domain",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["RetailChain", "store ops"],
+          "label_notes": "Retail domain only; no insurance/fintech."
+        },
+        {
+          "requirement": "BPMN process modeling",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Process flow diagrams", "Visio"],
+          "label_notes": "Visio flows but not BPMN/enterprise workflow standard."
+        },
+        {
+          "requirement": "API and integration requirements",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "No API/integration requirements work cited."
+        },
+        {
+          "requirement": "SQL and data reporting",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["SQL queries", "SQL Server", "sales reporting"],
+          "label_notes": "Regular SQL reporting for business stakeholders."
+        }
+      ]
+    },
+    {
+      "id": "realism_dba_postgres_13",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Database Administrator",
+      "source_category": "Database Administrator",
+      "job_title": "PostgreSQL DBA",
+      "raw_resume": "VICTOR CHEN\nDatabase Administrator | EduPlatform | 2016–Present\n• Administer PostgreSQL 14 clusters: backups (pg_dump, WAL archiving), replication setup.\n• Query tuning with EXPLAIN ANALYZE; added indexes reducing p95 latency 40%.\n• Managed MySQL legacy app during migration window to Postgres.\n• On-call for database outages; documented runbooks in Confluence.\n• Python scripts for backup verification and disk usage alerts.\n\nJunior DBA | HostData (2013–2016)\n• SQL Server maintenance plans, job schedules.\n\nSkills: PostgreSQL, MySQL, SQL Server, backup/recovery, replication, Linux, Python",
+      "raw_jd": "Senior PostgreSQL DBA — StreamMetrics\n\nStreamMetrics ingests 5TB/day of event data for analytics customers.\n\nYou will:\n• Operate petabyte-scale PostgreSQL/Citus or TimescaleDB clusters\n• Design partitioning and sharding strategies for time-series workloads\n• Automate failover with Patroni and HAProxy\n• Collaborate with SRE on connection pooling (PgBouncer) at 50k connections\n• Lead major version upgrades with zero-downtime strategies\n\nRequirements:\n• 7+ years PostgreSQL DBA in high-volume production\n• Citus, TimescaleDB, or similar distributed Postgres extensions\n• Patroni/etcd HA clustering\n• Performance tuning at scale (partitioning, vacuum strategy, bloat management)\n• On-call leadership for database incidents\n\nStreamMetrics — competitive salary + equity.",
+      "requirements": [
+        {
+          "requirement": "PostgreSQL DBA in production",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["PostgreSQL 14 clusters", "backups", "replication", "Query tuning"],
+          "label_notes": "8+ years Postgres admin with tuning and HA basics."
+        },
+        {
+          "requirement": "Citus or TimescaleDB at scale",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Single-cluster Postgres; no distributed extensions."
+        },
+        {
+          "requirement": "Patroni HA clustering",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["replication setup", "failover"],
+          "label_notes": "Replication mentioned; Patroni/etcd not explicit."
+        },
+        {
+          "requirement": "partitioning and sharding",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["indexes reducing p95 latency"],
+          "label_notes": "Index tuning only; no partitioning/sharding at petabyte scale."
+        },
+        {
+          "requirement": "on-call for database incidents",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["On-call for database outages", "runbooks"],
+          "label_notes": "Production on-call and runbook ownership."
+        }
+      ]
+    },
+    {
+      "id": "realism_ml_engineer_14",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Machine Learning Engineer",
+      "source_category": "Machine Learning Engineer",
+      "job_title": "Machine Learning Engineer",
+      "raw_resume": "KEVIN ZHANG\nML Engineer | AdTarget AI | 2021–Present\n• Trained XGBoost and logistic regression models for click-through rate prediction.\n• Feature pipelines in Python (pandas, scikit-learn); exported ONNX models for inference.\n• Deployed batch scoring jobs on AWS SageMaker endpoints.\n• A/B tested model variants; tracked metrics in MLflow experiments.\n• Collaborated with data engineers on Snowflake feature tables.\n\nData Scientist Intern | AdTarget (2020)\n• Jupyter notebooks for exploratory analysis.\n\nSkills: Python, scikit-learn, XGBoost, pandas, SageMaker, MLflow, SQL, Snowflake\nEducation: M.S. Statistics, UCLA",
+      "raw_jd": "Senior ML Engineer — VisionDrive\n\nVisionDrive builds autonomous vehicle perception systems.\n\nResponsibilities:\n• Train and optimize PyTorch models for object detection (YOLO, Faster R-CNN)\n• CUDA kernel optimization and TensorRT deployment on edge GPUs\n• Real-time inference pipelines (<20ms latency) in C++ integration layer\n• Dataset labeling workflows and active learning loops\n• Rigorous eval harnesses (mAP, precision-recall) for model releases\n\nRequirements:\n• 4+ years ML engineering with deep learning in production\n• PyTorch and computer vision (detection, segmentation)\n• CUDA, TensorRT, or edge deployment experience\n• C++ integration for real-time systems\n• Automotive or robotics domain preferred\n\nVisionDrive — cutting-edge R&D environment.",
+      "requirements": [
+        {
+          "requirement": "Python and scikit-learn ML",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["scikit-learn", "XGBoost", "Python", "MLflow"],
+          "label_notes": "Production tabular ML with sklearn/XGBoost stack."
+        },
+        {
+          "requirement": "PyTorch and computer vision",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "Tabular ML only; no CV or PyTorch."
+        },
+        {
+          "requirement": "CUDA and TensorRT edge deployment",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": ["SageMaker endpoints", "ONNX"],
+          "label_notes": "Cloud batch scoring; no CUDA/edge GPU optimization."
+        },
+        {
+          "requirement": "MLflow or experiment tracking",
+          "gold_bucket": "strong",
+          "gold_score_min": 7,
+          "gold_score_max": 9,
+          "relevant_resume_snippets": ["MLflow experiments", "A/B tested model variants"],
+          "label_notes": "MLflow used for experiment tracking in production."
+        },
+        {
+          "requirement": "C++ real-time integration",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": [],
+          "label_notes": "Python-only ML pipeline; no C++ systems integration."
+        }
+      ]
+    },
+    {
+      "id": "realism_network_engineer_15",
+      "layer": "realism",
+      "source": "inspired_by:batuhanmtl/job_resume_fit#Network Engineer",
+      "source_category": "Network Engineer",
+      "job_title": "Network Engineer",
+      "raw_resume": "ROBERT SILVA\nNetwork Engineer | ConnectCorp | 2015–Present\n• Maintain Cisco ASA firewalls and Catalyst switch stacks at 12 branch offices.\n• BGP and OSPF routing for MPLS WAN; VLAN segmentation for guest/corp networks.\n• Wireshark packet captures for troubleshooting VoIP quality issues.\n• Change management via ITIL tickets; after-hours maintenance windows.\n• Basic Ansible playbooks for switch config backups (personal project adopted team-wide).\n\nNOC Technician | ISP Regional (2012–2015)\n• Monitor link utilization; escalate fiber cuts to field techs.\n\nCertifications: CCNA, CCNP Enterprise\nSkills: Cisco, BGP, OSPF, VLAN, firewalls, Wireshark, MPLS, Ansible, ITIL",
+      "raw_jd": "Senior Network Engineer — CloudScale SaaS\n\nCloudScale runs multi-tenant SaaS on AWS with global anycast.\n\nYou will:\n• Design AWS networking: Transit Gateway, Direct Connect, PrivateLink\n• Implement zero-trust access (Zscaler, VPN alternatives)\n• Automate network infra with Terraform and Python (boto3)\n• Partner with security on WAF rules and DDoS mitigation (Cloudflare/AWS Shield)\n• Support 99.99% uptime SLO for customer-facing APIs\n\nRequirements:\n• 6+ years network engineering; 3+ years cloud networking (AWS)\n• AWS VPC, TGW, Direct Connect, Route 53, load balancers\n• Infrastructure as Code (Terraform) for network resources\n• Modern zero-trust and SASE concepts\n• Scripting (Python) for automation\n\nCloudScale — remote US, equity eligible.",
+      "requirements": [
+        {
+          "requirement": "Cisco routing and switching",
+          "gold_bucket": "strong",
+          "gold_score_min": 8,
+          "gold_score_max": 10,
+          "relevant_resume_snippets": ["Cisco ASA", "Catalyst", "BGP", "OSPF", "CCNP"],
+          "label_notes": "10+ years enterprise Cisco with CCNP."
+        },
+        {
+          "requirement": "AWS cloud networking",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": [],
+          "label_notes": "On-prem/MPLS only; no AWS networking."
+        },
+        {
+          "requirement": "Terraform for network automation",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 4,
+          "relevant_resume_snippets": ["Ansible playbooks"],
+          "label_notes": "Ansible for switch backups; no Terraform or cloud IaC."
+        },
+        {
+          "requirement": "zero-trust and SASE",
+          "gold_bucket": "gap",
+          "gold_score_min": 1,
+          "gold_score_max": 3,
+          "relevant_resume_snippets": ["VLAN segmentation"],
+          "label_notes": "Traditional VLAN/firewall; no zero-trust/SASE."
+        },
+        {
+          "requirement": "Python scripting for automation",
+          "gold_bucket": "weak",
+          "gold_score_min": 4,
+          "gold_score_max": 6,
+          "relevant_resume_snippets": ["Ansible playbooks"],
+          "label_notes": "Ansible YAML automation; Python/boto3 not cited."
+        }
+      ]
+    }
+  ]
+}

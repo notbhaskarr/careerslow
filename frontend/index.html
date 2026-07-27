@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerSlow Interviewer</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-mark" aria-hidden="true">CS</span>
+                <h1>CareerSlow</h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Left Pane: Input Form -->
+            <section class="left-pane glass-panel">
+                <div class="panel-header">
+                    <h2>Analyze</h2>
+                </div>
+                
+                <form id="analyze-form">
+                    <div class="form-group">
+                        <label for="resume-upload" class="file-upload-label">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Resume PDF</span>
+                            <input type="file" id="resume-upload" name="resume_pdf" accept="application/pdf" required>
+                        </label>
+                        <span id="file-name-display" class="file-name">No file chosen</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="jd-text">Job description</label>
+                        <textarea id="jd-text" name="jd_text" placeholder="Paste job description..." required></textarea>
+                    </div>
+
+                    <button type="submit" id="analyze-btn" class="primary-btn">
+                        <span>Analyze fit</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Right Pane: Results -->
+            <section class="right-pane glass-panel">
+                <div id="interviewer-controls" class="interviewer-section hidden">
+                    <h2 class="interviewer-title"><i class="fa-solid fa-headset"></i> Mock interview</h2>
+                    <div class="interviewer-actions">
+                        <button id="start-interview-btn" class="primary-btn interviewer-btn">
+                            <span id="interview-btn-text">Start session</span>
+                            <i id="interview-btn-icon" class="fa-solid fa-play"></i>
+                        </button>
+                        <button id="mute-btn" class="secondary-btn icon-btn hidden" title="Mute">
+                            <i id="mute-icon" class="fa-solid fa-microphone"></i>
+                        </button>
+                        <div id="interview-timer" class="interview-timer hidden">05:00</div>
+                    </div>
+                    <div id="interview-status" class="interview-status hidden">
+                        <i class="fa-solid fa-microphone fa-beat-fade"></i> Listening...
+                    </div>
+                    <canvas id="audio-visualizer" class="audio-visualizer hidden" width="300" height="60"></canvas>
+                </div>
+
+                <div id="extraction-state" class="debrief-panel hidden">
+                    <h3><i class="fa-solid fa-clipboard-check"></i> Debrief</h3>
+                    <div id="extraction-content" class="debrief-content"></div>
+                </div>
+
+                <div id="loading-state" class="state-container hidden">
+                    <div class="spinner"></div>
+                    <h3>Analyzing</h3>
+                </div>
+
+                <div id="empty-state" class="state-container">
+                    <i class="fa-solid fa-chart-simple empty-icon"></i>
+                    <p class="empty-text">Upload resume + JD to start.</p>
+                </div>
+
+                <div id="results-state" class="state-container hidden">
+                    <div class="score-card">
+                        <div class="score-circle" id="overall-score-circle">
+                            <h2 id="overall-score">0.0</h2>
+                            <span>/ 10</span>
+                        </div>
+                        <div class="score-details">
+                            <h3>Fit score</h3>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title">Gaps</h3>
+                    <p class="section-hint">Re-upload PDF after editing for a new score.</p>
+                    <div id="gap-list" class="gap-list">
+                        <!-- Dynamic Gap Cards will be injected here -->
+                    </div>
+
+                    <h3 class="section-title section-title-spaced">Partial match (5–7)</h3>
+                    <div id="weak-list" class="gap-list"></div>
+
+                    <h3 class="section-title section-title-spaced">Strengths (8–10)</h3>
+                    <div id="strength-list" class="gap-list">
+                        <!-- Dynamic Strength Cards will be injected here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

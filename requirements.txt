@@ -1,0 +1,28 @@
+# Core orchestration
+langgraph
+langchain
+langchain-google-genai
+
+# Vector Database
+qdrant-client
+fastembed
+
+# Structured Output & Validation
+pydantic
+
+# NLP & Parsing
+
+# API / WebSocket Server
+fastapi
+uvicorn[standard]
+websockets==12.0
+redis==5.0.3
+
+# Tracing & Eval
+langsmith
+pytest
+
+# Utils
+python-dotenv
+python-multipart
+pymupdf

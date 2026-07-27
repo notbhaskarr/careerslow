@@ -1,0 +1,10 @@
+.env
+venv/
+.cursor/
+__pycache__/
+*.pyc
+.pytest_cache/
+qdrant_storage/
+eval/reports/*.json
+.DS_Store
+scripts/fonts/

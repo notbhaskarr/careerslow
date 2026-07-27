@@ -1,0 +1,36 @@
+# Render Blueprint — full app (API + frontend + WebSocket)
+# https://render.com/docs/blueprint-spec
+#
+# Before deploy:
+#   1. Create a free Qdrant Cloud cluster → set QDRANT_URL + QDRANT_API_KEY
+#   2. Add GOOGLE_API_KEY, SARVAM_API_KEY in the Render dashboard
+#
+# Redis: link the redis service below (auto-injects REDIS_URL).
+
+services:
+  - type: web
+    name: careerslow
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          name: careerslow-redis
+          type: redis
+          property: connectionString
+      - key: DEBUG_RESUME_PIPELINE
+        value: "false"
+
+  - type: redis
+    name: careerslow-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
