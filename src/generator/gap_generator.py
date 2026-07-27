@@ -2,6 +2,11 @@ import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from typing import Optional, List
 from src.schemas.document_schemas import GapAnalysis, BatchBulletsResponse
+from src.utils.or_requirements import (
+    parse_or_options,
+    count_or_matches,
+    apply_or_match_score,
+)
 
 class GapGenerator:
     def __init__(self):
@@ -47,14 +52,28 @@ class GapGenerator:
                 "Score 1-4: Missing or extremely weak evidence.\n"
             )
 
+        or_options = parse_or_options(requirement) if requirement_kind == "skill" else []
+        or_matches = count_or_matches(or_options, evidence) if or_options else []
+        or_context = ""
+        if or_options:
+            listed = ", ".join(or_options)
+            matched = ", ".join(or_matches) if or_matches else "none"
+            or_context = (
+                f"\nOR-GROUP REQUIREMENT: interchangeable options are [{listed}].\n"
+                f"EXPLICIT MATCHES IN EVIDENCE (deterministic count): {len(or_matches)} — {matched}.\n"
+                "OR-GROUP RUBRIC (overrides generic 9-10 rule):\n"
+                "  - 2+ listed options evidenced → match_score 10\n"
+                "  - exactly 1 listed option evidenced → match_score 9\n"
+                "  - 0 listed options (adjacent/similar only) → match_score 5-7, never 9-10\n"
+            )
+
         prompt = (
             f"You are an expert technical career coach and resume reviewer helping a candidate apply for a '{job_title}' role.\n"
             "Your task is to analyze how well a candidate meets a specific job requirement based ONLY on the provided evidence extracted from their resume.\n\n"
-            f"{kind_context}\n"
+            f"{kind_context}{or_context}\n"
             "RULES & RUBRIC:\n"
             "1. Write out your step-by-step `reasoning`.\n"
             "2. Assign the `match_score` based on the rubric above.\n"
-            "   - OR / ANY-OF RULE (skills only): If the requirement lists interchangeable options, score 9-10 if ANY is evidenced.\n"
             "   - Do not confuse similar but distinct skills (e.g. C vs C#).\n"
             "3. If 'NO EVIDENCE FOUND' is provided, the match score must be 1-3.\n"
             "4. Write a brief 'gap_description' explaining what is missing or weak.\n"
@@ -65,6 +84,8 @@ class GapGenerator:
         
         try:
             result = await self.structured_scorer.ainvoke(prompt, config=config)
+            if or_options:
+                result.match_score = apply_or_match_score(len(or_matches), result.match_score)
             return result
         except Exception as e:
             print(f"Warning: Async LLM Scoring failed for requirement '{requirement[:20]}...'. Error: {str(e)}")
