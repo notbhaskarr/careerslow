@@ -131,6 +131,15 @@ class TurnManager:
             return f"Hi {name}, welcome to your {job} prep mock interview."
         return f"Welcome to your {job} prep mock interview."
 
+    def greeting_line(self) -> str:
+        return self._greeting_line()
+
+    def opening_question_text(self) -> str:
+        seg = self.current_segment()
+        if seg:
+            return seg.get("question", "Tell me about your background.")
+        return "Tell me about your background."
+
     def build_greeting_directive(self) -> str:
         return (
             "[INTERVIEWER DIRECTIVE — GREETING]\n"

@@ -361,6 +361,10 @@ class InterviewSession:
         logger.info(f"User (answer started during AI): {text}")
 
     async def _handle_meta_intent(self, intent: str, text: str):
+        if self._opening_grace and is_opening_greeting_only(text):
+            logger.debug(f"Ignoring opening greeting noise (meta): {text!r}")
+            return
+
         logger.info(f"User (meta/{intent}): {text}")
         self._utterance.clear()
         self._during_ai_buffer.clear()
@@ -379,8 +383,6 @@ class InterviewSession:
             return
 
         if intent in ("repeat", "listening"):
-            if self._opening_grace and is_opening_greeting_only(text):
-                return
             self.history.append(HumanMessage(content=text))
             self._persist_session_state()
             last_ai = self._last_ai_message()
@@ -504,6 +506,46 @@ class InterviewSession:
         for item in kept:
             self.llm_in_queue.put_nowait(item)
 
+    def _build_llm_messages(self, directive: str) -> List:
+        """Gemini requires at least one user turn in contents; add a trigger if needed."""
+        messages = list(self.history) + [SystemMessage(content=directive)]
+        if not any(isinstance(m, HumanMessage) for m in self.history):
+            messages.append(HumanMessage(content="[Begin the interview now.]"))
+        return messages
+
+    async def _deliver_scripted_line(
+        self,
+        text: str,
+        directive: str,
+        *,
+        then_queue: Optional[str] = None,
+        mark_opening_done: bool = False,
+    ):
+        """Speak a fixed line via TTS without calling the LLM (greeting, opening Q)."""
+        planned = self._planned_question_label(directive)
+        logger.info(
+            "AI turn [segment=%s]: planned=%r",
+            self.turns.segment_index,
+            planned,
+        )
+
+        self.interrupted.clear()
+        self.turns.on_ai_started()
+        await self._send_phase("ai_speaking", "Interviewer speaking…")
+
+        self.history.append(AIMessage(content=text))
+        logger.info("AI said: %s", text)
+        self._persist_session_state()
+        await self._enqueue_tts(text)
+
+        if then_queue:
+            await self.llm_in_queue.put(then_queue)
+        if mark_opening_done:
+            self._opening_question_done = True
+            self.turns.mark_current_segment_asked()
+        if self.pending_tts == 0:
+            self._maybe_finish_ai_playback()
+
     async def _replay_interviewer(self, text: str):
         """Re-speak the last interviewer line without calling the LLM."""
         self.interrupted.clear()
@@ -544,6 +586,22 @@ class InterviewSession:
                 await asyncio.sleep(0.3)
                 continue
 
+            if "GREETING" in directive:
+                await self._deliver_scripted_line(
+                    self.turns.greeting_line(),
+                    directive,
+                    then_queue=self.turns.build_opening_question_directive(),
+                )
+                continue
+
+            if "OPENING QUESTION" in directive:
+                await self._deliver_scripted_line(
+                    self.turns.opening_question_text(),
+                    directive,
+                    mark_opening_done=True,
+                )
+                continue
+
             planned = self._planned_question_label(directive)
             logger.info(
                 "AI turn [segment=%s]: planned=%r",
@@ -569,7 +627,7 @@ class InterviewSession:
             if is_planned_question and not skip_segment_mark:
                 self.turns.mark_current_segment_asked()
 
-            messages_for_llm = list(self.history) + [SystemMessage(content=directive)]
+            messages_for_llm = self._build_llm_messages(directive)
 
             buffer = ""
             full_response = ""
@@ -599,11 +657,6 @@ class InterviewSession:
                     self.history.append(AIMessage(content=full_response))
                     logger.info("AI said: %s", full_response)
                     self._persist_session_state()
-                    if "GREETING" in directive:
-                        await self.llm_in_queue.put(self.turns.build_opening_question_directive())
-                    elif "OPENING QUESTION" in directive:
-                        self._opening_question_done = True
-                        self.turns.mark_current_segment_asked()
                     if self.pending_tts == 0:
                         self._maybe_finish_ai_playback()
 
