@@ -83,6 +83,15 @@ def parse_stt_message(resp: dict) -> tuple[Optional[str], Optional[str], bool]:
     return None, None, False
 
 
+def _connect_sarvam(uri: str, headers: dict):
+    """Open Sarvam STT WebSocket; header kwarg name changed in websockets 14+."""
+    kwargs = {"ping_interval": 20, "ping_timeout": 20}
+    major = int(websockets.__version__.split(".")[0])
+    if major >= 14:
+        return websockets.connect(uri, additional_headers=headers, **kwargs)
+    return websockets.connect(uri, extra_headers=headers, **kwargs)
+
+
 class SarvamSTTClient:
     BASE_URI = "wss://api.sarvam.ai/speech-to-text/ws"
 
@@ -114,12 +123,7 @@ class SarvamSTTClient:
         uri = self._build_uri()
         headers = {"api-subscription-key": self.api_key}
 
-        async with websockets.connect(
-            uri,
-            extra_headers=headers,
-            ping_interval=20,
-            ping_timeout=20,
-        ) as ws:
+        async with _connect_sarvam(uri, headers) as ws:
             logger.info("Sarvam STT connected (v3)")
 
             async def send_audio():
