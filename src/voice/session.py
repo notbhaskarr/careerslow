@@ -2,7 +2,6 @@ import asyncio
 import json
 import logging
 import os
-import re
 import time
 import uuid
 from typing import List, Optional, Tuple, Union
@@ -30,7 +29,7 @@ STT_LANGUAGE = os.getenv("INTERVIEW_STT_LANGUAGE", "en-IN")
 TTS_LANGUAGE = os.getenv("INTERVIEW_TTS_LANGUAGE", "en-IN")
 LLM_MODEL = os.getenv("INTERVIEW_LLM_MODEL", "gemini-3.1-flash-lite")
 SILENCE_NUDGE_SECONDS = float(os.getenv("INTERVIEW_SILENCE_SECONDS", "12"))
-UTTERANCE_DEBOUNCE_SECONDS = float(os.getenv("INTERVIEW_UTTERANCE_DEBOUNCE_MS", "3500")) / 1000.0
+UTTERANCE_DEBOUNCE_SECONDS = float(os.getenv("INTERVIEW_UTTERANCE_DEBOUNCE_MS", "2000")) / 1000.0
 MIN_COMMIT_WORDS = int(os.getenv("INTERVIEW_MIN_COMMIT_WORDS", "5"))
 SHORT_ANSWER_FALLBACK_SECONDS = float(os.getenv("INTERVIEW_SHORT_ANSWER_SECONDS", "4"))
 
@@ -148,6 +147,22 @@ class InterviewSession:
                 return msg.content.strip()
         return None
 
+    def _should_ignore_hello(self, text: str) -> bool:
+        """Ignore hello/hi noise during opening or while waiting for the interviewer."""
+        if not is_opening_greeting_only(text):
+            return False
+        if self._opening_grace:
+            return True
+        if self._utterance.word_count() >= 3:
+            return True
+        if self.turns.phase in (TurnPhase.AWAITING_USER, TurnPhase.USER_SPEAKING):
+            if self.pending_tts == 0 and self.out_audio_queue.empty():
+                return True
+        return False
+
+    def _ai_is_audible(self) -> bool:
+        return self.pending_tts > 0 or not self.out_audio_queue.empty()
+
     def _planned_question_label(self, directive: str) -> str:
         seg = self.turns.current_segment()
         if "SILENCE NUDGE" in directive:
@@ -220,7 +235,6 @@ class InterviewSession:
                         self._mic_live = True
                         self._playback_live.set()
                         logger.info("Client ready — starting interviewer playback")
-                        await self._send_phase("ai_speaking", "Interviewer speaking…")
                     continue
                 if message.get("bytes") and self._mic_live:
                     await self.stt_in_queue.put(message["bytes"])
@@ -296,8 +310,8 @@ class InterviewSession:
         self.last_activity = time.monotonic()
         self.nudge_sent = False
 
-        if self._opening_grace and is_opening_greeting_only(text):
-            logger.debug(f"Ignoring opening greeting noise: {text!r}")
+        if self._should_ignore_hello(text):
+            logger.debug(f"Ignoring hello noise: {text!r}")
             return
 
         intent = detect_meta_intent(text)
@@ -306,6 +320,10 @@ class InterviewSession:
             TurnPhase.USER_SPEAKING,
             TurnPhase.AI_SPEAKING,
         ):
+            if intent == "listening" and is_opening_greeting_only(text):
+                if self.turns.phase == TurnPhase.AWAITING_USER and not self._ai_is_audible():
+                    logger.debug(f"Ignoring hello listening check while awaiting AI: {text!r}")
+                    return
             if self.turns.phase == TurnPhase.AI_SPEAKING:
                 await self._interrupt_ai_playback()
             await self._handle_meta_intent(intent, text)
@@ -321,6 +339,7 @@ class InterviewSession:
             self._utterance.append(text)
             self.turns.on_user_started_speaking()
             logger.debug(f"User (continue): {text}")
+            self._schedule_commit()
             return
 
         if self.turns.phase not in (TurnPhase.AWAITING_USER, TurnPhase.USER_SPEAKING):
@@ -333,6 +352,7 @@ class InterviewSession:
         self._utterance.append(text)
         self.turns.on_user_started_speaking()
         logger.debug(f"User (partial): {text}")
+        self._schedule_commit()
 
     async def _process_during_ai_buffer(self):
         if not self._during_ai_buffer.has_content():
@@ -361,11 +381,19 @@ class InterviewSession:
         logger.info(f"User (answer started during AI): {text}")
 
     async def _handle_meta_intent(self, intent: str, text: str):
-        if self._opening_grace and is_opening_greeting_only(text):
-            logger.debug(f"Ignoring opening greeting noise (meta): {text!r}")
+        if self._should_ignore_hello(text):
+            logger.debug(f"Ignoring hello noise (meta): {text!r}")
             return
 
         logger.info(f"User (meta/{intent}): {text}")
+
+        if intent in ("repeat", "listening") and is_opening_greeting_only(text):
+            if self.turns.phase == TurnPhase.AWAITING_USER and not self._ai_is_audible():
+                return
+            if self._utterance.word_count() >= MIN_COMMIT_WORDS:
+                logger.debug("Ignoring hello meta — substantive answer in buffer")
+                return
+
         self._utterance.clear()
         self._during_ai_buffer.clear()
         self._answer_in_progress = False
@@ -520,8 +548,9 @@ class InterviewSession:
         *,
         then_queue: Optional[str] = None,
         mark_opening_done: bool = False,
+        mark_segment_asked: bool = False,
     ):
-        """Speak a fixed line via TTS without calling the LLM (greeting, opening Q)."""
+        """Speak a fixed line via TTS without calling the LLM."""
         planned = self._planned_question_label(directive)
         logger.info(
             "AI turn [segment=%s]: planned=%r",
@@ -531,7 +560,6 @@ class InterviewSession:
 
         self.interrupted.clear()
         self.turns.on_ai_started()
-        await self._send_phase("ai_speaking", "Interviewer speaking…")
 
         self.history.append(AIMessage(content=text))
         logger.info("AI said: %s", text)
@@ -542,6 +570,8 @@ class InterviewSession:
             await self.llm_in_queue.put(then_queue)
         if mark_opening_done:
             self._opening_question_done = True
+            self.turns.mark_current_segment_asked()
+        if mark_segment_asked:
             self.turns.mark_current_segment_asked()
         if self.pending_tts == 0:
             self._maybe_finish_ai_playback()
@@ -602,6 +632,20 @@ class InterviewSession:
                 )
                 continue
 
+            if kind == "answer":
+                if user_message:
+                    self.history.append(HumanMessage(content=user_message))
+                    self._persist_session_state()
+                seg = self.turns.current_segment()
+                question = seg.get("question", "").strip() if seg else ""
+                if question:
+                    await self._deliver_scripted_line(
+                        question,
+                        directive,
+                        mark_segment_asked=True,
+                    )
+                    continue
+
             planned = self._planned_question_label(directive)
             logger.info(
                 "AI turn [segment=%s]: planned=%r",
@@ -615,8 +659,6 @@ class InterviewSession:
 
             self.interrupted.clear()
             self.turns.on_ai_started()
-            if "GREETING" in directive or "OPENING QUESTION" in directive:
-                await self._send_phase("ai_speaking", "Interviewer speaking…")
             is_planned_question = (
                 not directive.startswith("[INTERVIEWER DIRECTIVE — SILENCE NUDGE]")
                 and not directive.startswith("[INTERVIEWER DIRECTIVE — REPEAT QUESTION]")
@@ -629,7 +671,6 @@ class InterviewSession:
 
             messages_for_llm = self._build_llm_messages(directive)
 
-            buffer = ""
             full_response = ""
 
             try:
@@ -639,19 +680,12 @@ class InterviewSession:
                     if self._answer_in_progress:
                         logger.info("Stopping LLM stream — user answer in progress")
                         break
-                    if not chunk.content:
-                        continue
-                    buffer += chunk.content
-                    full_response += chunk.content
-                    match = re.search(r"(?<=[.!?])\s+", buffer)
-                    if match:
-                        sentence = buffer[: match.end()].strip()
-                        if sentence:
-                            await self._enqueue_tts(sentence)
-                        buffer = buffer[match.end() :]
+                    if chunk.content:
+                        full_response += chunk.content
 
-                if buffer.strip() and not self.interrupted.is_set() and not self._answer_in_progress:
-                    await self._enqueue_tts(buffer.strip())
+                if full_response.strip() and not self.interrupted.is_set() and not self._answer_in_progress:
+                    full_response = full_response.strip()
+                    await self._enqueue_tts(full_response)
 
                 if full_response and not self.interrupted.is_set() and not self._answer_in_progress:
                     self.history.append(AIMessage(content=full_response))
@@ -673,7 +707,6 @@ class InterviewSession:
             self._segment_answer_sent = False
             if self._opening_grace and self._opening_question_done:
                 self._opening_grace = False
-                asyncio.create_task(self._send_phase("awaiting_user", "Your turn — speak now"))
         self.last_activity = time.monotonic()
         self.nudge_sent = False
 

@@ -256,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentSessionId = null;
     let micLive = false;
     let countdownTimer = null;
+    let interviewStarted = false;
 
     const interviewBtnText = document.getElementById('interview-btn-text');
     const interviewBtnIcon = document.getElementById('interview-btn-icon');
@@ -264,39 +265,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const muteIcon = document.getElementById('mute-icon');
     const timerDisplay = document.getElementById('interview-timer');
 
-
-    function setInterviewPhase(phase, detail = '') {
-        if (!interviewStatus) return;
-        interviewStatus.classList.remove('hidden');
-        interviewStatus.style.color = 'var(--text-secondary)';
-        const labels = {
-            connecting: '<i class="fa-solid fa-spinner fa-spin"></i> Connecting…',
-            countdown: `<i class="fa-solid fa-hourglass-start"></i> ${detail || 'Starting…'}`,
-            ai_speaking: '<i class="fa-solid fa-volume-high"></i> Interviewer speaking…',
-            awaiting_user: '<i class="fa-solid fa-microphone fa-beat-fade"></i> Your turn — speak now',
-        };
-        interviewStatus.innerHTML = labels[phase] || detail || 'In session';
-        if (phase === 'awaiting_user') {
-            interviewStatus.style.color = 'var(--success)';
+    function hideInterviewStatus() {
+        if (interviewStatus && !isMuted) {
+            interviewStatus.classList.add('hidden');
         }
     }
 
     function runCountdownThenReady(onReady) {
+        if (interviewStatus) interviewStatus.classList.add('hidden');
         let n = 3;
-        setInterviewPhase('countdown', `Starting in ${n}…`);
+        if (timerDisplay) timerDisplay.textContent = String(n);
         countdownTimer = setInterval(() => {
             n -= 1;
             if (n > 0) {
-                setInterviewPhase('countdown', `Starting in ${n}…`);
+                if (timerDisplay) timerDisplay.textContent = String(n);
                 return;
             }
             clearInterval(countdownTimer);
             countdownTimer = null;
             micLive = true;
+            interviewStarted = true;
+            secondsRemaining = 5 * 60;
+            updateTimerDisplay();
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'ready' }));
             }
-            onReady();
+            if (onReady) onReady();
         }, 1000);
     }
 
@@ -327,8 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 muteIcon.className = 'fa-solid fa-microphone';
                 muteIcon.style.color = 'inherit';
-                setInterviewPhase('awaiting_user');
-                interviewStatus.style.color = 'var(--success)';
+                hideInterviewStatus();
             }
         });
     }
@@ -366,18 +359,20 @@ document.addEventListener('DOMContentLoaded', () => {
             ws.onopen = async () => {
                 isInterviewing = true;
                 micLive = false;
+                interviewStarted = false;
                 interviewBtnText.textContent = 'End session';
                 interviewBtnIcon.className = 'fa-solid fa-stop';
                 interviewBtnIcon.style.color = 'var(--danger)';
-                setInterviewPhase('connecting');
+                hideInterviewStatus();
 
                 if (muteBtn) muteBtn.classList.remove('hidden');
                 if (timerDisplay) {
                     timerDisplay.classList.remove('hidden');
                     secondsRemaining = 5 * 60;
                     currentSessionId = null;
-                    updateTimerDisplay();
+                    timerDisplay.textContent = '3';
                     timerInterval = setInterval(() => {
+                        if (!interviewStarted) return;
                         secondsRemaining--;
                         updateTimerDisplay();
                         if (secondsRemaining <= 0) {
@@ -420,9 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (canvas) canvas.classList.remove('hidden');
                 drawVisualizer();
 
-                runCountdownThenReady(() => {
-                    setInterviewPhase('ai_speaking');
-                });
+                runCountdownThenReady(hideInterviewStatus);
             };
 
             ws.onmessage = async (event) => {
@@ -432,10 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (msg.type === 'session_started') {
                             currentSessionId = msg.session_id;
                             window.sessionStorage.setItem('current_session_id', msg.session_id);
-                        }
-                        if (msg.type === 'session_phase') {
-                            if (!micLive) return;
-                            setInterviewPhase(msg.phase, msg.detail || '');
                         }
                         if (msg.type === 'stop_playback') {
                             stopAllPlayback();
@@ -539,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (timerInterval) clearInterval(timerInterval);
         if (countdownTimer) clearInterval(countdownTimer);
         micLive = false;
+        interviewStarted = false;
 
         stopAllPlayback();
 
