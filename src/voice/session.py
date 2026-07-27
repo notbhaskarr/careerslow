@@ -95,6 +95,7 @@ class InterviewSession:
         self._mic_live = False
         self._playback_live = asyncio.Event()
         self._candidate_commits = 0
+        self._session_active = True
 
     async def run(self):
         self.tasks = [
@@ -132,6 +133,7 @@ class InterviewSession:
         self.cache.link_session_pair(self.session_id, self.pair_id)
 
     def _cleanup(self):
+        self._session_active = False
         self.stt_stop.set()
         self._cancel_pending_commit()
         for task in self.tasks:
@@ -217,6 +219,8 @@ class InterviewSession:
                         self._mic_live = True
                         self._playback_live.set()
                         logger.info("Client ready — starting interviewer playback")
+                        await self._send_phase("ai_speaking", "Interviewer speaking…")
+                        await self.llm_in_queue.put(self.turns.build_greeting_directive())
                     continue
                 if message.get("bytes") and self._mic_live:
                     await self.stt_in_queue.put(message["bytes"])
@@ -533,6 +537,11 @@ class InterviewSession:
                 await asyncio.sleep(0.3)
                 continue
 
+            if not self._mic_live:
+                await self.llm_in_queue.put(item)
+                await asyncio.sleep(0.2)
+                continue
+
             planned = self._planned_question_label(directive)
             logger.info(
                 "AI turn [segment=%s]: planned=%r",
@@ -558,10 +567,7 @@ class InterviewSession:
             if is_planned_question and not skip_segment_mark:
                 self.turns.mark_current_segment_asked()
 
-            if user_message:
-                messages_for_llm = list(self.history) + [SystemMessage(content=directive)]
-            else:
-                messages_for_llm = list(self.history) + [HumanMessage(content=directive)]
+            messages_for_llm = list(self.history) + [SystemMessage(content=directive)]
 
             buffer = ""
             full_response = ""
@@ -661,6 +667,8 @@ class InterviewSession:
         try:
             while True:
                 await asyncio.sleep(2)
+                if not self._session_active:
+                    continue
                 if not self.turns.should_nudge():
                     continue
                 if (
@@ -687,5 +695,3 @@ class InterviewSession:
         await self.websocket.send_json(
             {"type": "session_started", "session_id": self.session_id, "pair_id": self.pair_id}
         )
-        await self._send_phase("countdown", "Starting in 3…2…1")
-        await self.llm_in_queue.put(self.turns.build_greeting_directive())

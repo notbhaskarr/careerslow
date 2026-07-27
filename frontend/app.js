@@ -434,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.sessionStorage.setItem('current_session_id', msg.session_id);
                         }
                         if (msg.type === 'session_phase') {
+                            if (!micLive) return;
                             setInterviewPhase(msg.phase, msg.detail || '');
                         }
                         if (msg.type === 'stop_playback') {

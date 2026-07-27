@@ -143,8 +143,9 @@ class TurnManager:
         q = seg.get("question", "") if seg else "Tell me about your background."
         return (
             "[INTERVIEWER DIRECTIVE — OPENING QUESTION]\n"
-            f"Ask exactly this question verbatim: {q}\n"
-            "Max 20 words. One question only."
+            "The candidate has NOT answered yet. Do NOT acknowledge, praise, or react to them.\n"
+            f"Ask ONLY this question verbatim: {q}\n"
+            "One question only. Max 25 words."
         )
 
     def build_directive(self, *, silence_nudge: bool = False, repeat_question: bool = False) -> str:
