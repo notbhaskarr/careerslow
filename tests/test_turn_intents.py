@@ -1,6 +1,10 @@
 """Tests for meta-intent detection."""
 
-from src.voice.turn_intents import detect_meta_intent, is_filler_only
+from src.voice.turn_intents import (
+    detect_meta_intent,
+    is_filler_only,
+    is_opening_greeting_only,
+)
 
 
 def test_repeat_at_start():
@@ -38,3 +42,10 @@ def test_repeated_hello_is_listening():
     from src.voice.turn_intents import detect_meta_intent
 
     assert detect_meta_intent("Hello Hello Hello") == "listening"
+
+
+def test_opening_greeting_only():
+    assert is_opening_greeting_only("Hello") is True
+    assert is_opening_greeting_only("Hi there") is False
+    assert is_opening_greeting_only("Hello Hello") is True
+    assert is_opening_greeting_only("Can you hear me") is False

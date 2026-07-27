@@ -19,6 +19,7 @@ from src.voice.tts_client import SarvamTTSClient
 from src.voice.turn_intents import (
     detect_meta_intent,
     is_filler_only,
+    is_opening_greeting_only,
 )
 from src.voice.turn_manager import TurnManager, TurnPhase
 from src.voice.utterance_buffer import UtteranceBuffer
@@ -220,7 +221,6 @@ class InterviewSession:
                         self._playback_live.set()
                         logger.info("Client ready — starting interviewer playback")
                         await self._send_phase("ai_speaking", "Interviewer speaking…")
-                        await self.llm_in_queue.put(self.turns.build_greeting_directive())
                     continue
                 if message.get("bytes") and self._mic_live:
                     await self.stt_in_queue.put(message["bytes"])
@@ -296,6 +296,10 @@ class InterviewSession:
         self.last_activity = time.monotonic()
         self.nudge_sent = False
 
+        if self._opening_grace and is_opening_greeting_only(text):
+            logger.debug(f"Ignoring opening greeting noise: {text!r}")
+            return
+
         intent = detect_meta_intent(text)
         if intent and self.turns.phase in (
             TurnPhase.AWAITING_USER,
@@ -339,6 +343,10 @@ class InterviewSession:
         if not text:
             return
 
+        if self._opening_grace and is_opening_greeting_only(text):
+            logger.debug(f"Ignoring opening greeting noise (buffered): {text!r}")
+            return
+
         intent = detect_meta_intent(text)
         if intent:
             await self._handle_meta_intent(intent, text)
@@ -371,11 +379,10 @@ class InterviewSession:
             return
 
         if intent in ("repeat", "listening"):
+            if self._opening_grace and is_opening_greeting_only(text):
+                return
             self.history.append(HumanMessage(content=text))
             self._persist_session_state()
-            if intent == "listening" and self._opening_grace and not self._opening_question_done:
-                await self.llm_in_queue.put(self.turns.build_opening_question_directive())
-                return
             last_ai = self._last_ai_message()
             if last_ai:
                 await self._replay_interviewer(last_ai)
@@ -537,11 +544,6 @@ class InterviewSession:
                 await asyncio.sleep(0.3)
                 continue
 
-            if not self._mic_live:
-                await self.llm_in_queue.put(item)
-                await asyncio.sleep(0.2)
-                continue
-
             planned = self._planned_question_label(directive)
             logger.info(
                 "AI turn [segment=%s]: planned=%r",
@@ -695,3 +697,4 @@ class InterviewSession:
         await self.websocket.send_json(
             {"type": "session_started", "session_id": self.session_id, "pair_id": self.pair_id}
         )
+        await self.llm_in_queue.put(self.turns.build_greeting_directive())

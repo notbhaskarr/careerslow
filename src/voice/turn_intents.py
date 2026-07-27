@@ -80,10 +80,19 @@ def is_filler_only(text: str) -> bool:
     return bool(FILLER_PATTERN.match(text.strip()))
 
 
+OPENING_GREETING_WORDS = frozenset({"hello", "hi", "hey", "hiya"})
+
+
+def is_opening_greeting_only(text: str) -> bool:
+    """True for short hello/hi/hey utterances ignored during opening grace."""
+    words = [w.strip(".,?!") for w in text.strip().split()]
+    return bool(words) and all(w.lower() in OPENING_GREETING_WORDS for w in words)
+
+
 def normalize_for_meta_intent(text: str) -> str:
     """Collapse repeated greetings so 'Hello Hello' still triggers listening."""
     words = [w.strip(".,?!") for w in text.strip().split()]
-    if words and all(w.lower() in {"hello", "hi", "hey", "hiya"} for w in words):
+    if words and all(w.lower() in OPENING_GREETING_WORDS for w in words):
         return words[0]
     return text.strip()
 
