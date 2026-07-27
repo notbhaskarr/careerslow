@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import re
@@ -12,7 +13,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.voice.llm_utils import astream_with_retry
-from src.voice.protocol import STOP_PLAYBACK
+from src.voice.protocol import STOP_PLAYBACK, session_phase
 from src.voice.stt_client import SarvamSTTClient
 from src.voice.tts_client import SarvamTTSClient
 from src.voice.turn_intents import (
@@ -89,6 +90,12 @@ class InterviewSession:
         self.stt = SarvamSTTClient(sarvam_key, STT_LANGUAGE)
         self.tts = SarvamTTSClient(sarvam_key, TTS_LANGUAGE)
 
+        self._opening_grace = True
+        self._opening_question_done = False
+        self._mic_live = False
+        self._playback_live = asyncio.Event()
+        self._candidate_commits = 0
+
     async def run(self):
         self.tasks = [
             asyncio.create_task(self._browser_listener(), name="browser_listener"),
@@ -119,6 +126,7 @@ class InterviewSession:
         meta = self.turns.get_session_meta()
         meta["session_id"] = self.session_id
         meta["pair_id"] = self.pair_id
+        meta["candidate_commits"] = self._candidate_commits
         self.cache.set_transcript(self.session_id, self._format_transcript())
         self.cache.set_session_meta(self.session_id, meta)
         self.cache.link_session_pair(self.session_id, self.pair_id)
@@ -143,11 +151,21 @@ class InterviewSession:
             return "(silence nudge)"
         if "CLOSE" in directive or "CLOSE]" in directive:
             return "(close interview)"
+        if "GREETING" in directive:
+            return "(greeting)"
+        if "OPENING QUESTION" in directive:
+            return seg.get("question", "") if seg else "(opening question)"
         if "REPEAT QUESTION" in directive:
             return seg.get("question", "") if seg else "(repeat last question)"
         if seg:
             return seg.get("question", "")
         return "(no planned question)"
+
+    async def _send_phase(self, phase: str, detail: str = ""):
+        try:
+            await self.websocket.send_json(session_phase(phase, detail))
+        except Exception as exc:
+            logger.debug(f"session_phase send failed: {exc}")
 
     async def _interrupt_ai_playback(self):
         """Stop in-flight TTS/audio and tell the browser to halt playback."""
@@ -170,6 +188,8 @@ class InterviewSession:
 
     async def _begin_barge_in(self):
         """User started speaking over the interviewer — cut AI audio and listen."""
+        if self._opening_grace:
+            return
         await self._interrupt_ai_playback()
         if not self._answer_in_progress:
             self._answer_in_progress = True
@@ -188,7 +208,17 @@ class InterviewSession:
                 message = await self.websocket.receive()
                 if message.get("type") == "websocket.disconnect":
                     break
-                if message.get("bytes"):
+                if message.get("text"):
+                    try:
+                        payload = json.loads(message["text"])
+                    except json.JSONDecodeError:
+                        continue
+                    if payload.get("type") == "ready":
+                        self._mic_live = True
+                        self._playback_live.set()
+                        logger.info("Client ready — starting interviewer playback")
+                    continue
+                if message.get("bytes") and self._mic_live:
                     await self.stt_in_queue.put(message["bytes"])
         except WebSocketDisconnect:
             logger.info(f"Browser disconnected: {self.pair_id} session={self.session_id}")
@@ -237,7 +267,7 @@ class InterviewSession:
         self._cancel_pending_commit()
         if self.turns.phase in (TurnPhase.AWAITING_USER, TurnPhase.USER_SPEAKING):
             self.turns.on_user_started_speaking()
-        elif self.turns.phase == TurnPhase.AI_SPEAKING:
+        elif self.turns.phase == TurnPhase.AI_SPEAKING and not self._opening_grace:
             await self._begin_barge_in()
 
     async def _on_vad_end(self):
@@ -256,18 +286,24 @@ class InterviewSession:
         self._schedule_commit()
 
     async def _on_user_transcript(self, text: str):
-        if self.turns.phase == TurnPhase.CLOSED:
+        if self.turns.phase == TurnPhase.CLOSED or not self._mic_live:
             return
 
         self.last_activity = time.monotonic()
         self.nudge_sent = False
 
-        if self.turns.phase == TurnPhase.AI_SPEAKING:
-            intent = detect_meta_intent(text)
-            if intent:
+        intent = detect_meta_intent(text)
+        if intent and self.turns.phase in (
+            TurnPhase.AWAITING_USER,
+            TurnPhase.USER_SPEAKING,
+            TurnPhase.AI_SPEAKING,
+        ):
+            if self.turns.phase == TurnPhase.AI_SPEAKING:
                 await self._interrupt_ai_playback()
-                await self._handle_meta_intent(intent, text)
-                return
+            await self._handle_meta_intent(intent, text)
+            return
+
+        if self.turns.phase == TurnPhase.AI_SPEAKING:
             if not self._answer_in_progress:
                 if is_filler_only(text):
                     self._during_ai_buffer.append(text)
@@ -333,6 +369,9 @@ class InterviewSession:
         if intent in ("repeat", "listening"):
             self.history.append(HumanMessage(content=text))
             self._persist_session_state()
+            if intent == "listening" and self._opening_grace and not self._opening_question_done:
+                await self.llm_in_queue.put(self.turns.build_opening_question_directive())
+                return
             last_ai = self._last_ai_message()
             if last_ai:
                 await self._replay_interviewer(last_ai)
@@ -433,6 +472,7 @@ class InterviewSession:
             return
 
         logger.info(f"User (commit): {text}")
+        self._candidate_commits += 1
         self._utterance.clear()
         self._answer_in_progress = False
         self._segment_answer_sent = True
@@ -506,10 +546,14 @@ class InterviewSession:
 
             self.interrupted.clear()
             self.turns.on_ai_started()
+            if "GREETING" in directive or "OPENING QUESTION" in directive:
+                await self._send_phase("ai_speaking", "Interviewer speaking…")
             is_planned_question = (
                 not directive.startswith("[INTERVIEWER DIRECTIVE — SILENCE NUDGE]")
                 and not directive.startswith("[INTERVIEWER DIRECTIVE — REPEAT QUESTION]")
                 and "SKIP REQUEST" not in directive
+                and "GREETING" not in directive
+                and "OPENING QUESTION" not in directive
             )
             if is_planned_question and not skip_segment_mark:
                 self.turns.mark_current_segment_asked()
@@ -547,6 +591,11 @@ class InterviewSession:
                     self.history.append(AIMessage(content=full_response))
                     logger.info("AI said: %s", full_response)
                     self._persist_session_state()
+                    if "GREETING" in directive:
+                        await self.llm_in_queue.put(self.turns.build_opening_question_directive())
+                    elif "OPENING QUESTION" in directive:
+                        self._opening_question_done = True
+                        self.turns.mark_current_segment_asked()
                     if self.pending_tts == 0:
                         self._maybe_finish_ai_playback()
 
@@ -561,6 +610,9 @@ class InterviewSession:
         self.turns.on_playback_finished()
         if self.turns.phase == TurnPhase.AWAITING_USER:
             self._segment_answer_sent = False
+            if self._opening_grace and self._opening_question_done:
+                self._opening_grace = False
+                asyncio.create_task(self._send_phase("awaiting_user", "Your turn — speak now"))
         self.last_activity = time.monotonic()
         self.nudge_sent = False
 
@@ -593,6 +645,8 @@ class InterviewSession:
         try:
             while True:
                 data = await self.out_audio_queue.get()
+                if not self._playback_live.is_set():
+                    await self._playback_live.wait()
                 if self.interrupted.is_set():
                     self._decrement_pending_tts()
                     continue
@@ -633,4 +687,5 @@ class InterviewSession:
         await self.websocket.send_json(
             {"type": "session_started", "session_id": self.session_id, "pair_id": self.pair_id}
         )
-        await self.llm_in_queue.put(self.turns.build_directive())
+        await self._send_phase("countdown", "Starting in 3…2…1")
+        await self.llm_in_queue.put(self.turns.build_greeting_directive())

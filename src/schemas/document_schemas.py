@@ -157,6 +157,8 @@ class InterviewSegment(BaseModel):
 
 class InterviewPlan(BaseModel):
     opening_line: str = Field(description="Short welcome, role name, session framing")
+    candidate_name: str = Field(default="", description="Candidate first name for voice greeting")
+    job_title: str = Field(default="", description="Target role title for greeting")
     jd_summary_short: str = Field(description="2-3 sentence JD summary")
     strong_probed: str = Field(default="", description="Primary strength topic (score >= 8)")
     weak_probed: str = Field(default="", description="Weak/adjacent topic (score 5-7)")

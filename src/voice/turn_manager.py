@@ -121,6 +121,32 @@ class TurnManager:
     def advance_segment(self):
         self.segment_index += 1
 
+    def _greeting_line(self) -> str:
+        opening = self.plan.get("opening_line", "").strip()
+        if opening:
+            return opening
+        name = self.plan.get("candidate_name", "").strip()
+        job = self.plan.get("job_title", "").strip() or "this role"
+        if name:
+            return f"Hi {name}, welcome to your {job} prep mock interview."
+        return f"Welcome to your {job} prep mock interview."
+
+    def build_greeting_directive(self) -> str:
+        return (
+            "[INTERVIEWER DIRECTIVE — GREETING]\n"
+            f"Say exactly: {self._greeting_line()}\n"
+            "Max 20 words. Do not ask a question yet."
+        )
+
+    def build_opening_question_directive(self) -> str:
+        seg = self.current_segment()
+        q = seg.get("question", "") if seg else "Tell me about your background."
+        return (
+            "[INTERVIEWER DIRECTIVE — OPENING QUESTION]\n"
+            f"Ask exactly this question verbatim: {q}\n"
+            "Max 20 words. One question only."
+        )
+
     def build_directive(self, *, silence_nudge: bool = False, repeat_question: bool = False) -> str:
         """
         Build the per-turn system directive sent to the voice LLM.

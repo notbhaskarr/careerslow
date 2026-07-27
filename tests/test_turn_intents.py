@@ -32,3 +32,9 @@ def test_filler_only():
 def test_hello_is_listening_not_filler():
     assert detect_meta_intent("Hello") == "listening"
     assert is_filler_only("Hello") is False
+
+
+def test_repeated_hello_is_listening():
+    from src.voice.turn_intents import detect_meta_intent
+
+    assert detect_meta_intent("Hello Hello Hello") == "listening"

@@ -254,6 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerInterval;
     let secondsRemaining = 5 * 60;
     let currentSessionId = null;
+    let micLive = false;
+    let countdownTimer = null;
 
     const interviewBtnText = document.getElementById('interview-btn-text');
     const interviewBtnIcon = document.getElementById('interview-btn-icon');
@@ -261,6 +263,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const muteBtn = document.getElementById('mute-btn');
     const muteIcon = document.getElementById('mute-icon');
     const timerDisplay = document.getElementById('interview-timer');
+
+
+    function setInterviewPhase(phase, detail = '') {
+        if (!interviewStatus) return;
+        interviewStatus.classList.remove('hidden');
+        interviewStatus.style.color = 'var(--text-secondary)';
+        const labels = {
+            connecting: '<i class="fa-solid fa-spinner fa-spin"></i> Connecting…',
+            countdown: `<i class="fa-solid fa-hourglass-start"></i> ${detail || 'Starting…'}`,
+            ai_speaking: '<i class="fa-solid fa-volume-high"></i> Interviewer speaking…',
+            awaiting_user: '<i class="fa-solid fa-microphone fa-beat-fade"></i> Your turn — speak now',
+        };
+        interviewStatus.innerHTML = labels[phase] || detail || 'In session';
+        if (phase === 'awaiting_user') {
+            interviewStatus.style.color = 'var(--success)';
+        }
+    }
+
+    function runCountdownThenReady(onReady) {
+        let n = 3;
+        setInterviewPhase('countdown', `Starting in ${n}…`);
+        countdownTimer = setInterval(() => {
+            n -= 1;
+            if (n > 0) {
+                setInterviewPhase('countdown', `Starting in ${n}…`);
+                return;
+            }
+            clearInterval(countdownTimer);
+            countdownTimer = null;
+            micLive = true;
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ready' }));
+            }
+            onReady();
+        }, 1000);
+    }
 
     function stopAllPlayback() {
         activeAudioSources.forEach(source => {
@@ -289,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 muteIcon.className = 'fa-solid fa-microphone';
                 muteIcon.style.color = 'inherit';
-                interviewStatus.innerHTML = '<i class="fa-solid fa-microphone fa-beat-fade"></i> Listening...';
+                setInterviewPhase('awaiting_user');
                 interviewStatus.style.color = 'var(--success)';
             }
         });
@@ -327,10 +365,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             ws.onopen = async () => {
                 isInterviewing = true;
+                micLive = false;
                 interviewBtnText.textContent = 'End session';
                 interviewBtnIcon.className = 'fa-solid fa-stop';
                 interviewBtnIcon.style.color = 'var(--danger)';
-                interviewStatus.classList.remove('hidden');
+                setInterviewPhase('connecting');
 
                 if (muteBtn) muteBtn.classList.remove('hidden');
                 if (timerDisplay) {
@@ -371,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 microphone.connect(analyser);
 
                 scriptProcessor.port.onmessage = (e) => {
-                    if (ws.readyState === WebSocket.OPEN) {
+                    if (micLive && ws.readyState === WebSocket.OPEN) {
                         ws.send(e.data);
                     }
                 };
@@ -380,6 +419,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (canvas) canvas.classList.remove('hidden');
                 drawVisualizer();
+
+                runCountdownThenReady(() => {
+                    setInterviewPhase('ai_speaking');
+                });
             };
 
             ws.onmessage = async (event) => {
@@ -389,6 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (msg.type === 'session_started') {
                             currentSessionId = msg.session_id;
                             window.sessionStorage.setItem('current_session_id', msg.session_id);
+                        }
+                        if (msg.type === 'session_phase') {
+                            setInterviewPhase(msg.phase, msg.detail || '');
                         }
                         if (msg.type === 'stop_playback') {
                             stopAllPlayback();
@@ -490,6 +536,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (timerDisplay) timerDisplay.classList.add('hidden');
 
         if (timerInterval) clearInterval(timerInterval);
+        if (countdownTimer) clearInterval(countdownTimer);
+        micLive = false;
 
         stopAllPlayback();
 

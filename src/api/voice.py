@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from src.api.extraction_helpers import (
     build_study_topics,
+    candidate_answers,
     heuristic_debrief,
     parse_extraction_json,
     truncate_transcript,
@@ -170,6 +171,19 @@ async def interview_websocket(websocket: WebSocket, pair_id: str):
     await session.run()
 
 
+
+
+def _minimal_debrief(session_meta: dict, gap_analyses: list) -> DebriefResult:
+    """Honest debrief when the candidate never committed a substantive answer."""
+    return DebriefResult(
+        overall_readiness=(
+            "The session ended before a full answer was captured. "
+            "Wait for the interviewer to finish the opening, then respond to the first question."
+        ),
+        communication_notes="Try again after the countdown and opening question.",
+        study_topics=build_study_topics(session_meta, gap_analyses)[:4],
+    )
+
 @voice_router.post("/api/interview/debrief/{session_id}", response_model=DebriefResult)
 async def debrief_interview(session_id: str):
     """
@@ -210,6 +224,13 @@ async def debrief_interview(session_id: str):
 
     job_title = analysis.get("job_title", "Software Engineer")
     jd_summary = plan.get("jd_summary_short") or analysis.get("jd_summary_short", "")
+
+    answers = candidate_answers(transcript)
+    commits = session_meta.get("candidate_commits", len(answers))
+    if commits < 1 and len(answers) < 1:
+        result = _minimal_debrief(session_meta, gap_analyses)
+        cache.set_debrief(session_id, result.model_dump())
+        return result
 
     template = _load_extraction_prompt_template()
     prompt = _build_debrief_prompt(

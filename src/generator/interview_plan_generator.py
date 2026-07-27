@@ -101,6 +101,7 @@ class InterviewPlanGenerator:
         raw_jd: str,
         raw_resume: str,
         responsibilities: Optional[List[str]] = None,
+        candidate_name: str = "",
     ) -> InterviewPlan:
         """
         Generate a ~5-minute mock interview plan.
@@ -116,7 +117,7 @@ class InterviewPlanGenerator:
             InterviewPlan with exactly 4 segments when topics exist.
         """
         strong, weak, gap = select_prep_topics(gap_analyses)
-        plan = self._build_deterministic_plan(job_title, raw_jd, strong, weak, gap)
+        plan = self._build_deterministic_plan(job_title, raw_jd, strong, weak, gap, candidate_name)
 
         try:
             polished = await self._polish_with_llm(
@@ -136,6 +137,7 @@ class InterviewPlanGenerator:
         strong: Optional[dict],
         weak: Optional[dict],
         gap: Optional[dict],
+        candidate_name: str = "",
     ) -> InterviewPlan:
         """Build segment questions and bridges without LLM."""
         s_req = strong["requirement"] if strong else "your most relevant experience"
@@ -195,11 +197,17 @@ class InterviewPlanGenerator:
             )
         )
 
+        if candidate_name:
+            opening = (
+                f"Hi {candidate_name}, welcome to your {job_title} prep mock interview."
+            )
+        else:
+            opening = f"Welcome to your {job_title} prep mock interview."
+
         return InterviewPlan(
-            opening_line=(
-                f"Welcome to your {job_title} prep mock. "
-                "We'll start with a strength, then areas to refine."
-            ),
+            opening_line=opening,
+            candidate_name=candidate_name,
+            job_title=job_title,
             jd_summary_short=" ".join(raw_jd.split())[:300],
             strong_probed=s_req if strong else "",
             weak_probed=w_req,
@@ -252,4 +260,7 @@ class InterviewPlanGenerator:
         result.strong_probed = base.strong_probed
         result.weak_probed = base.weak_probed
         result.gap_probed = base.gap_probed
+        result.candidate_name = base.candidate_name
+        result.job_title = base.job_title
+        result.opening_line = base.opening_line
         return result

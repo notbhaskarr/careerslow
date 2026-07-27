@@ -8,7 +8,7 @@ from src.graph.state import GraphState
 from src.graph.workflow import WorkflowBuilder
 from src.utils.cache_keys import make_jd_id, make_pair_id, make_resume_id
 from src.utils.pipeline_debug import log_extraction, log_parsed_resume
-from src.utils.text import resume_excerpt
+from src.utils.text import resume_excerpt, extract_candidate_name
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ async def run_analysis(
         "gap_analyses": [gap.model_dump() for gap in final_state["gap_analyses"]],
         "errors": final_state["errors"],
         "job_title": final_state["parsed_jd"].job_title if final_state.get("parsed_jd") else "Unknown Role",
+        "candidate_name": extract_candidate_name(resume_text),
         "raw_jd_summary": final_state["parsed_jd"].raw_text if final_state.get("parsed_jd") else "",
         "resume_excerpt": resume_excerpt(resume_text),
         "resume_text": resume_text,
@@ -109,6 +110,7 @@ async def run_analysis(
             raw_jd=jd_text,
             raw_resume=resume_text,
             responsibilities=responsibilities,
+            candidate_name=response_data["candidate_name"],
         )
         plan_dict = interview_plan.model_dump()
         plan_dict["strength_probed"] = plan_dict.get("strong_probed", "")

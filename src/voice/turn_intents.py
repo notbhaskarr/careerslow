@@ -80,6 +80,14 @@ def is_filler_only(text: str) -> bool:
     return bool(FILLER_PATTERN.match(text.strip()))
 
 
+def normalize_for_meta_intent(text: str) -> str:
+    """Collapse repeated greetings so 'Hello Hello' still triggers listening."""
+    words = [w.strip(".,?!") for w in text.strip().split()]
+    if words and all(w.lower() in {"hello", "hi", "hey", "hiya"} for w in words):
+        return words[0]
+    return text.strip()
+
+
 def detect_meta_intent(text: str) -> Optional[str]:
     """
     Return meta intent key or None for normal speech.
@@ -87,18 +95,20 @@ def detect_meta_intent(text: str) -> Optional[str]:
     Repeat/listening only trigger on short utterances or phrase-at-start
     to avoid false positives mid-answer.
     """
-    if is_end_interview_request(text):
+    normalized = normalize_for_meta_intent(text)
+    if is_end_interview_request(normalized):
         return "end"
-    if len(text.split()) <= META_MAX_WORDS:
-        if is_listening_check(text):
+    word_count = len(normalized.split())
+    if word_count <= META_MAX_WORDS:
+        if is_listening_check(normalized):
             return "listening"
-        if is_skip_next_request(text):
+        if is_skip_next_request(normalized):
             return "skip"
-        if is_repeat_request(text):
+        if is_repeat_request(normalized):
             return "repeat"
     else:
-        if _matches_start(LISTENING_PATTERNS, text):
+        if _matches_start(LISTENING_PATTERNS, normalized):
             return "listening"
-        if _matches_start(REPEAT_PATTERNS, text):
+        if _matches_start(REPEAT_PATTERNS, normalized):
             return "repeat"
     return None

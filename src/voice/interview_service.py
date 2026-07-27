@@ -1,3 +1,4 @@
+from src.utils.text import extract_candidate_name
 """Creates voice interview sessions from cached pair analysis."""
 
 import logging
@@ -51,6 +52,11 @@ class InterviewService:
         """
         ctx = self.load_context(pair_id)
         session_id = f"sess_{uuid.uuid4().hex[:16]}"
+        analysis = ctx["analysis"]
+        plan = dict(ctx["plan"])
+        plan.setdefault("job_title", ctx["job_title"])
+        name = analysis.get("candidate_name") or extract_candidate_name(analysis.get("resume_excerpt", ""))
+        plan.setdefault("candidate_name", name)
         system_prompt = build_system_prompt(
             ctx["job_title"],
             ctx["jd_summary"],
@@ -62,5 +68,5 @@ class InterviewService:
             session_id=session_id,
             cache=self.cache,
             system_prompt=system_prompt,
-            plan=ctx["plan"],
+            plan=plan,
         )
